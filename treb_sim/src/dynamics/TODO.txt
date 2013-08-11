@@ -1,0 +1,6 @@
+save all position, velocity, and forces in unified data structure, so that
+   _deriv doesn't have to be called for plotting
+   
+support zoom and pan in animation window
+
+support self-assembly
