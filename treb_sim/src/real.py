@@ -1,20 +1,20 @@
 ''' a bit more in the comment...
 '''
-import pdb
+#import pdb
 
 import dynamics
 from dynamics.constants import foot2meter, inch2meter, meter2foot
 from dynamics.misc import length, rot2radians, radians2rot
 from dynamics.constants import lb2kgram, kgram2lb, newton2lb
 from dynamics.constants import pine_density, steel_density
-import numpy
+
 import scipy
 from scipy import constants
-from scipy import pi, sqrt, array, sin, cos, arcsin, arccos, arctan2
+from scipy import pi, sqrt, array, sin, cos, arccos, arctan2
 from scipy import deg2rad, rad2deg
-from scipy.optimize.optimize import fmin
-from scipy.optimize.minpack import fsolve
-from scipy.interpolate.fitpack2 import UnivariateSpline
+#from scipy.optimize.optimize import fmin
+#from scipy.optimize.minpack import fsolve
+#from scipy.interpolate.fitpack2 import UnivariateSpline
 from pylab import plot
 
 scipy.set_printoptions(precision=5, linewidth=200)
@@ -70,7 +70,7 @@ def treb( sling_length = 8.54665,              # sling length, feet
     cw_drop = foot2meter(cw_drop)
     cw_mass = lb2kgram(cw_weight)
     ramp_mass = lb2kgram(ramp_weight)
-    long_arm_mass9 = lb2kgram(long_arm_weight9)
+    #long_arm_mass9 = lb2kgram(long_arm_weight9)
     short_arm_mass = lb2kgram(short_arm_weight)
     connector_m2 = connector_in2 * inch2meter(1)**2
     upper_link_m2 = upper_link_in2 * inch2meter(1)**2
@@ -79,7 +79,7 @@ def treb( sling_length = 8.54665,              # sling length, feet
 
     # long arm length to reach slide
     long_arm_length = -slide_y / sin(alpha)
-    long_arm_mass = long_arm_mass9 * meter2foot(long_arm_length)/9
+    #long_arm_mass = long_arm_mass9 * meter2foot(long_arm_length)/9
 
     # compute rest cw position thru triangulation
     rest_cw_ctr = circle_intersection(hanger_pos, link_sum,
@@ -375,7 +375,7 @@ def dist(Y):
         Y = Y.reshape([1,len(Y)])
     vx = Y[:,33]
     vy = Y[:,34]
-    tof = 2.0 * vy / scipy.constants.g
+    tof = 2.0 * vy / constants.g
     tof[tof<0.0] = 0.0
     return (tof*vx)
 
@@ -434,3 +434,5 @@ X0 = array([8.54665,   5.587,    11.38508])
 
 sim=treb()
 
+import dynamics.animation
+anim=dynamics.Animation(sim, dist)

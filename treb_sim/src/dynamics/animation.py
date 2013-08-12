@@ -1,18 +1,17 @@
-import pdb
+#import pdb
 import pygtk
 pygtk.require('2.0')
 import gtk
-import gobject
-import cairo
+#import cairo
 from dynamics.constants import meter2foot
-from numpy import arange
+#from numpy import arange
 import numpy
-import cv
+#import cv
 
 # Create a GTK+ widget on which we will draw using Cairo
 class Animation:
-    def __init__(self, sim, movie_flag=False):
-        self.sim, self.movie_flag = sim, movie_flag
+    def __init__(self, sim, dist, movie_flag=False):
+        self.sim, self.dist, self.movie_flag = sim, dist, movie_flag
 
         self.window = gtk.Window()
         self.vbox = gtk.VBox(homogeneous=False, spacing=1)
@@ -75,25 +74,27 @@ class Animation:
 
 
     def update_range(self):
-        self.range_bar.set_fraction(self.sim.range[self.sim.time_idx]/self.sim.maxrange)
-        self.range_bar.set_text("%g feet" % (meter2foot(self.sim.range[self.sim.time_idx])))
+        range = self.dist(self.sim.Y[self.sim.time_idx])
+        maxrange = numpy.max(self.dist(self.sim.Y))
+        self.range_bar.set_fraction(range/maxrange)
+        self.range_bar.set_text("%g feet" % (meter2foot(range)))
 
-    def movie(self):
-        #create a video writer
-        width, height = self.vbox.window.get_size()
-        writer = cv.CreateVideoWriter('movie.avi', -1, 60, (width, height), is_color=1)
-        gtk.gdk.window_process_all_updates()
-        for time in arange(0.0, 1.0, 0.001):
-            self.time_adj.set_value(time)
-            gtk.gdk.window_process_all_updates()
-            pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
-            pb = pb.get_from_drawable(self.vbox.window, self.vbox.window.get_colormap(), 0, 0, 0, 0, width, height)
-            pixel_str = pb.get_pixels()
-            pixel_array = numpy.fromstring(pixel_str, dtype=numpy.uint8)
-            pixel_array = pixel_array.reshape((height, width, 3), order='C')
-            cv_mat = cv.fromarray(pixel_array)
-            #cv_frame = cv.DecodeImage(cv_mat, iscolor=1)
-            cv.WriteFrame(writer, cv_mat)
+#     def movie(self):
+#         #create a video writer
+#         width, height = self.vbox.window.get_size()
+#         writer = cv.CreateVideoWriter('movie.avi', -1, 60, (width, height), is_color=1)
+#         gtk.gdk.window_process_all_updates()
+#         for time in arange(0.0, 1.0, 0.001):
+#             self.time_adj.set_value(time)
+#             gtk.gdk.window_process_all_updates()
+#             pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
+#             pb = pb.get_from_drawable(self.vbox.window, self.vbox.window.get_colormap(), 0, 0, 0, 0, width, height)
+#             pixel_str = pb.get_pixels()
+#             pixel_array = numpy.fromstring(pixel_str, dtype=numpy.uint8)
+#             pixel_array = pixel_array.reshape((height, width, 3), order='C')
+#             cv_mat = cv.fromarray(pixel_array)
+#             #cv_frame = cv.DecodeImage(cv_mat, iscolor=1)
+#             cv.WriteFrame(writer, cv_mat)
 
 
 class EnergyBar(gtk.DrawingArea):
