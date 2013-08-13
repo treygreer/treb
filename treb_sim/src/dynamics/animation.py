@@ -76,7 +76,10 @@ class Animation:
     def update_range(self):
         range = self.dist(self.sim.Y[self.sim.time_idx])
         maxrange = numpy.max(self.dist(self.sim.Y))
-        self.range_bar.set_fraction(range/maxrange)
+        fraction = range/maxrange
+        if fraction < 0:
+            fraction = 0
+        self.range_bar.set_fraction(fraction)
         self.range_bar.set_text("%g feet" % (meter2foot(range)))
 
 #     def movie(self):
