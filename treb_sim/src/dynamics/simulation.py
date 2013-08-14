@@ -1,7 +1,5 @@
-from numpy import mat, array, zeros, copy, asarray
+from numpy import mat, zeros
 from scipy.integrate import ode
-import pdb
-from math import pi
 
 class Simulation:
     def __init__(self, max_time, time_step):
