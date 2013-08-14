@@ -432,7 +432,6 @@ X0 = array([8.54665,   5.587,    11.38508])
 #result=scipy.optimize.fmin_l_bfgs_b(opt, X0, approx_grad=True, bounds=None)
 #result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001, feps=1e-60, full_output=True)
 
-sim=treb()
-
-import dynamics.animation
-anim=dynamics.Animation(sim, dist)
+if __name__ == '__main__':
+    sim=treb()
+    anim=dynamics.Animation(sim, dist)
