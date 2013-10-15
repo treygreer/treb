@@ -1,9 +1,9 @@
-
-import pdb
-from numpy import mat,sqrt,array,sin,cos,hypot,hstack,linspace,trapz
-from math import atan2,pi
-import constants
-from frame import *
+''' '''
+import scipy.constants
+import pdb  # @UnusedImport
+import numpy as np
+from math import pi
+from . import misc
 
 class Object:
     "object class"
@@ -11,21 +11,21 @@ class Object:
         self.idx = len(frame.objects)
         frame.objects.append(self)
         self.frame = frame
-        self.origin = mat(origin).T
+        self.origin = np.mat(origin).T
         self.theta = theta
         self.update_working_vars()
-        self.cg = mat(cg).T
+        self.cg = np.mat(cg).T
 
     def update_working_vars(self):
         # r = [ cos(theta), sin(theta) ]
-        self.r = radians2rot(self.theta)
+        self.r = misc.radians2rot(self.theta)
         # R = |r0  -r1| = | cos  -sin |
         #     |r1   r0|   | sin   cos |
-        self.R = rot2matrix(self.r)   # orientation matrix
+        self.R = misc.rot2matrix(self.r)   # orientation matrix
 
     def draw(self, cr):
         cr.set_source_rgb(self.color[0], self.color[1], self.color[2])
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(0.5*pix)
         ### draw cg
         # xo = self.obj2world(self.cg)
@@ -68,14 +68,14 @@ class Object:
 
     def dxdtheta(self, xobj):
         "given xobj, return d(xworld)/d(theta)"
-        return (mat([[-self.frame.r[1], -self.frame.r[0]],
+        return (np.mat([[-self.frame.r[1], -self.frame.r[0]],
                      [ self.frame.r[0], -self.frame.r[1]]]) *
                 self.obj2frame(xobj))
 
     def dvdtheta(self, xobj):
         "given xobj, return d(vworld)/d(theta)"
         return (self.frame.omega *
-                mat([[-self.frame.r[0],  self.frame.r[1]],
+                np.mat([[-self.frame.r[0],  self.frame.r[1]],
                      [-self.frame.r[1], -self.frame.r[0]]]) *
                 self.obj2frame(xobj))
 
@@ -94,7 +94,7 @@ class Rectangle(Object):
             moment = (l*l + w*w) * mass/12.0
         self.moment = moment
 
-        self.corners = mat([[-l/2.0, -w/2.0],
+        self.corners = np.mat([[-l/2.0, -w/2.0],
                             [ l/2.0, -w/2.0],
                             [ l/2.0,  w/2.0],
                             [-l/2.0,  w/2.0]]).T
@@ -102,7 +102,7 @@ class Rectangle(Object):
     def draw(self, cr):
         Object.draw(self, cr)
         xw = self.obj2world(self.corners)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(1.0*pix)
         cr.move_to(xw[0,0], xw[1,0])
         for i in [1,2,3]:
@@ -123,9 +123,9 @@ class Circle(Object):
 
     def draw(self, cr):
         Object.draw(self, cr)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(1.0*pix)
-        center = self.obj2world(mat((0,0)).T)
+        center = self.obj2world(np.mat((0,0)).T)
         cr.arc(center[0,0], center[1,0], self.radius, 0, 2.0*pi)
         cr.stroke()
 
@@ -142,16 +142,16 @@ class Beam(Object):
         self.x1,self.t1,self.d1 = x1,t1,d1
         self.color = color
 
-        xvec = linspace(x0, x1, num=100)
-        self.mass = trapz(self.t(xvec)*self.d(xvec)*density, xvec)
-        xcg = trapz(xvec*self.t(xvec)*self.d(xvec)*density, xvec) / self.mass
-        self.cg = mat((xcg,0.0)).T
+        xvec = np.linspace(x0, x1, num=100)
+        self.mass = np.trapz(self.t(xvec)*self.d(xvec)*density, xvec)
+        xcg = np.trapz(xvec*self.t(xvec)*self.d(xvec)*density, xvec) / self.mass
+        self.cg = np.mat((xcg,0.0)).T
         self.mass = abs(self.mass)
-        self.moment = abs(trapz((xvec-xcg)**2.0 * self.t(xvec) * self.d(xvec) * density +
+        self.moment = abs(np.trapz((xvec-xcg)**2.0 * self.t(xvec) * self.d(xvec) * density +
                                 self.t(xvec) * self.d(xvec)**3.0 * density / 12.0,
                                 xvec))
 
-        self.corners = mat([[x0, -d0/2.0],
+        self.corners = np.mat([[x0, -d0/2.0],
                             [x0,  d0/2.0],
                             [x1,  d1/2.0],
                             [x1, -d1/2.0]]).T
@@ -161,7 +161,7 @@ class Beam(Object):
         thick = self.t0*(self.x1-objx)/(self.x1-self.x0) + \
                 self.t1*(objx-self.x0)/(self.x1-self.x0)
         if (any(thick <= 0.0)):
-            print "thick = ", thick
+            print("thick = ", thick)
             raise ValueError
         return thick
 
@@ -170,14 +170,14 @@ class Beam(Object):
         depth = self.d0*(self.x1-objx)/(self.x1-self.x0) + \
                 self.d1*(objx-self.x0)/(self.x1-self.x0)
         if (any(depth <= 0.0)):
-            print "depth = ", depth
+            print("depth = ", depth)
             raise ValueError
         return depth
 
     def draw(self, cr):
         Object.draw(self, cr)
         xw = self.obj2world(self.corners)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(1.0*pix)
         cr.move_to(xw[0,0], xw[1,0])
         for i in [1,2,3]:

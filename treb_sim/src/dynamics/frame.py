@@ -1,11 +1,8 @@
-import pdb
-import numpy
-import scipy
-from scipy import constants
-from scipy import mat,sqrt,array,sin,cos,hypot,hstack,zeros
-from math import atan2,pi
-from misc import *
-import constants
+
+import scipy.constants
+import numpy as np
+from . import misc
+
 
 class Frame:
     "frame class"
@@ -14,10 +11,10 @@ class Frame:
         self.name = name
         self.idx = len(sim.frames)
         sim.frames.append(self)
-        self.origin = mat(origin).T
+        self.origin = np.mat(origin).T
         self.theta = theta
         self.omega = 0.0
-        self.v = mat((0.0,0.0)).T
+        self.v = np.mat((0.0,0.0)).T
         self.update_working_vars()
         self.objects = []
         self.PEmin = float('inf')
@@ -29,7 +26,7 @@ class Frame:
             self.cg = cg
         else:
             # compute frame's mass and center of gravity
-            self.cg = mat((0.0,0.0)).T
+            self.cg = np.mat((0.0,0.0)).T
             self.mass = 0.0
             for obj in self.objects:
                 self.mass += obj.mass
@@ -50,31 +47,32 @@ class Frame:
             self.moment = 0.0
             for obj in self.objects:
                 self.moment += obj.moment + \
-                               obj.mass * length(obj.obj2frame(obj.cg))**2
+                               obj.mass * misc.length_(obj.obj2frame(obj.cg))**2
 
     def scatter_state(self, y):
         my_y = y[6*self.idx:6*self.idx+6]
-        self.origin = mat(my_y[0:2]).T
+        self.origin = np.mat(my_y[0:2]).T
         self.theta = my_y[2]
-        self.v = mat(my_y[3:5]).T
+        self.v = np.mat(my_y[3:5]).T
         self.omega = my_y[5]
         self.update_working_vars()
 
     def update_working_vars(self):
         # r = [ cos(theta), sin(theta) ]
-        self.r = radians2rot(self.theta)
+        self.r = misc.radians2rot(self.theta)
         # R = |r0  -r1| = | cos  -sin |
         #     |r1   r0|   | sin   cos |
-        self.R = rot2matrix(self.r)   # orientation matrix
+        self.R = misc.rot2matrix(self.r)   # orientation matrix
         # Rdot = |0  -w|  x  |r0  -r1|  =  w*|-r1  -r0| = w*| -sin  -cos |
         #        |w   0|     |r1   r0|       | r0  -r1|     |  cos  -sin |
-        self.Rdot = dual(self.omega) * self.R 
+        self.Rdot = misc.dual(self.omega) * self.R 
 
     def gather_state(self, y):
-        y[6*self.idx:6*self.idx+6] = hstack((self.origin.A1,
+        y[6*self.idx:6*self.idx+6] = np.hstack((self.origin.A1,
                                              self.theta,
                                              self.v.A1,
                                              self.omega))
+        
 
     def draw(self, cr):
         for obj in self.objects:
@@ -82,7 +80,7 @@ class Frame:
         # draw cg
         xo = self.origin
         cr.set_source_rgb(0.0,0.0,0.0)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(0.5*pix)
         cr.move_to(xo[0]-0.02, xo[1])
         cr.line_to(xo[0]+0.02, xo[1])
@@ -112,7 +110,7 @@ class Frame:
     def PEvec(self):
         "return potential energy vector"
         Y = self.sim.Y
-        PE=zeros(Y.shape[0])
+        PE=np.zeros(Y.shape[0])
         for time_idx in range(Y.shape[0]):
             self.scatter_state(Y[time_idx, :])
             PE[time_idx] = self.origin[1,0]*self.mass*scipy.constants.g
@@ -126,7 +124,7 @@ class Frame:
     def KEvec(self):
         "return kinetic energy vector"
         Y = self.sim.Y
-        KE=zeros(Y.shape[0])
+        KE=np.zeros(Y.shape[0])
         for time_idx in range(Y.shape[0]):
             self.scatter_state(Y[time_idx, :])
             KE[time_idx] = (0.5*self.mass*self.v.T*self.v +
@@ -147,11 +145,11 @@ class Frame:
 
     def dxdtheta(self, xframe):
         "given xframe, return d(xworld)/d(theta)"
-        return (mat([[-self.r[1], -self.r[0]],
+        return (np.mat([[-self.r[1], -self.r[0]],
                      [ self.r[0], -self.r[1]]]) * xframe)
 
     def dvdtheta(self, xframe):
         "given xframe, return d(vworld)/d(theta)"
-        return (self.omega * mat([[-self.r[0],  self.r[1]],
+        return (self.omega * np.mat([[-self.r[0],  self.r[1]],
                                   [-self.r[1], -self.r[0]]]) * xframe)
 

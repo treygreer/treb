@@ -1,7 +1,7 @@
-import numpy
-from numpy import *
-import pdb
-from misc import length
+import numpy as np
+import pdb  # @UnusedImport
+from .misc import length_
+from math import pi
 
 DrawForceScale = 400e3
 
@@ -19,15 +19,15 @@ class Constraint:
 
     def Fvec(self, i=0):
         forces = self.sim.F[:, self.idx, i]
-        return numpy.sqrt(forces[:,0]**2 + forces[:,1]**2)
+        return np.sqrt(forces[:,0]**2 + forces[:,1]**2)
 
 class Nail(Constraint):
     def __init__(self, sim, name, obj, xobj, xworld):
         Constraint.__init__(self, sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
-        self.xframe = obj.obj2frame(mat(xobj).T)
-        self.xworld = mat(xworld).T
+        self.xframe = obj.obj2frame(np.mat(xobj).T)
+        self.xworld = np.mat(xworld).T
         self.dim=2
 
     def eval(self):
@@ -38,11 +38,11 @@ class Nail(Constraint):
         # C = x + R*xframe - xworld
         # C0 = x0 + cos(theta)*xframe0 - sin(theta)*xframe1 - xworld0
         # C1 = x1 + sin(theta)*xframe0 + cos(theta)*xframe1 - xworld1
-        j = hstack([eye(2), self.frame.dxdtheta(self.xframe)])
+        j = np.hstack([np.eye(2), self.frame.dxdtheta(self.xframe)])
         # Cdot   = v + Rdot*xframe
         # Cdot0 = v0 + omega*(-sin(theta)*xframe0 - cos(theta)*xframe1)
         # Cdot1 = v1 + omega*( cos(theta)*xframe0 - sin(theta)*xframe1)
-        jdot = hstack([zeros([2,2]), self.frame.dvdtheta(self.xframe)])
+        jdot = np.hstack([np.zeros([2,2]), self.frame.dvdtheta(self.xframe)])
         return ({'C': C,
                  'Cdot': Cdot,
                  'blocks': [{'frame':  self.frame,
@@ -53,7 +53,7 @@ class Nail(Constraint):
             #print "Nail Force=", self.Force.A1
             xo = self.frame.frame2world(self.xframe).A1
             cr.set_source_rgb(0.5,0.5,0.5)
-            pix,foo = cr.device_to_user_distance(1.0,1.0)
+            pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
             cr.set_line_width(0.5*pix)
             cr.move_to(xo[0]-0.1, xo[1])
             cr.line_to(xo[0]+0.1, xo[1])
@@ -79,21 +79,21 @@ class Pin(Constraint):
         Constraint.__init__(self, sim, name)
         self.frames = [obj0.frame, obj1.frame]
         self.frame0,self.frame1   = obj0.frame, obj1.frame
-        self.xframe0 = obj0.obj2frame(mat(xobj0).T)
-        self.xframe1 = obj1.obj2frame(mat(xobj1).T)
+        self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
+        self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
         self.dim=2
     def eval(self):
         C    = (self.frame0.frame2world(self.xframe0) -
                 self.frame1.frame2world(self.xframe1))
-        if length(C) > 1e-3:
-            print "pin C=", C
+        if length_(C) > 1e-3:
+            print("pin C=", C)
             raise ValueError
         Cdot = (self.frame0.frame2worldv(self.xframe0) -
                 self.frame1.frame2worldv(self.xframe1))
-        j =    [ hstack([eye(2), self.frame0.dxdtheta(self.xframe0)]),
-                -hstack([eye(2), self.frame1.dxdtheta(self.xframe1)])]
-        jdot = [ hstack([zeros([2,2]), self.frame0.dvdtheta(self.xframe0)]),
-                -hstack([zeros([2,2]), self.frame1.dvdtheta(self.xframe1)])]
+        j =    [ np.hstack([np.eye(2), self.frame0.dxdtheta(self.xframe0)]),
+                -np.hstack([np.eye(2), self.frame1.dxdtheta(self.xframe1)])]
+        jdot = [ np.hstack([np.zeros([2,2]), self.frame0.dvdtheta(self.xframe0)]),
+                -np.hstack([np.zeros([2,2]), self.frame1.dvdtheta(self.xframe1)])]
         return ({'C': C,
                  'Cdot': Cdot,
                  'blocks': [ {'frame': self.frame0, 'j': j[0], 'jdot': jdot[0]},
@@ -104,7 +104,7 @@ class Pin(Constraint):
             xo0 = self.frame0.frame2world(self.xframe0).A1
             xo1 = self.frame1.frame2world(self.xframe1).A1
             cr.set_source_rgb(0.5,0.5,0.5)
-            pix,foo = cr.device_to_user_distance(1.0,1.0)
+            pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
             cr.set_line_width(0.5*pix)
             cr.move_to(xo0[0]-0.1, xo0[1])
             cr.line_to(xo0[0]+0.1, xo0[1])
@@ -129,8 +129,8 @@ class Rod(Constraint):
         Constraint.__init__(self, sim, name)
         self.frames = [obj0.frame, obj1.frame]
         self.frame0,self.frame1   = obj0.frame, obj1.frame
-        self.xframe0 = obj0.obj2frame(mat(xobj0).T)
-        self.xframe1 = obj1.obj2frame(mat(xobj1).T)
+        self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
+        self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
         self.length = length
         self.dim = 1
     def eval(self):
@@ -139,22 +139,22 @@ class Rod(Constraint):
         vvec =  (self.frame1.frame2worldv(self.xframe1) -
                  self.frame0.frame2worldv(self.xframe0))
         C    = xvec.T*xvec - self.length*self.length
-        if length(C) > 1e-3:
-            print "rod error:  "
-            print "  name=", self.name, "rodC=", C, "xvec=", xvec.T
+        if length_(C) > 1e-3:
+            print("rod error:  ")
+            print("  name=", self.name, "rodC=", C, "xvec=", xvec.T)
             #raise ValueError
         Cdot = 2*xvec.T*vvec
-        j    = [-2*hstack([xvec[0],
+        j    = [-2*np.hstack([xvec[0],
                            xvec[1],
                            self.frame0.dxdtheta(self.xframe0).T * xvec]),
-                 2*hstack([xvec[0],
+                 2*np.hstack([xvec[0],
                            xvec[1],
                            self.frame1.dxdtheta(self.xframe1).T * xvec])]
-        jdot = [-2*hstack([vvec[0],
+        jdot = [-2*np.hstack([vvec[0],
                            vvec[1],
                            self.frame0.dvdtheta(self.xframe0).T * xvec +
                            self.frame0.dxdtheta(self.xframe0).T * vvec]),
-                 2*hstack([vvec[0],
+                 2*np.hstack([vvec[0],
                            vvec[1],
                            self.frame1.dvdtheta(self.xframe1).T * xvec +
                            self.frame1.dxdtheta(self.xframe1).T * vvec])]
@@ -168,7 +168,7 @@ class Rod(Constraint):
             xo0 = self.frame0.frame2world(self.xframe0).A1
             xo1 = self.frame1.frame2world(self.xframe1).A1
             cr.set_source_rgb(0.5,0.5,0.5)
-            pix,foo = cr.device_to_user_distance(1.0,1.0)
+            pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
             cr.set_line_width(0.5*pix)
             cr.move_to(xo0[0], xo0[1])
             cr.line_to(xo1[0], xo1[1])
@@ -194,8 +194,8 @@ class Shelf(Nail):
         Constraint.__init__(self, sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
-        self.xframe = obj.obj2frame(mat(xobj).T)
-        self.xworld = mat([0, height]).T
+        self.xframe = obj.obj2frame(np.mat(xobj).T)
+        self.xworld = np.mat([0, height]).T
         self.dim=1
     def eval(self):
         # evaluate as though a Nail, then pick out second (y) row of results
@@ -208,12 +208,12 @@ class Shelf(Nail):
 
     def draw(self, cr, drawForces):
         height = self.xworld.A1[1]
-        xo = self.frame.frame2world(self.xframe).A1
+        xo = self.frame.frame2world(self.xframe).A1  # @UnusedVariable
         if (self.enabled):
             cr.set_source_rgb(0.0,0.0,0.0)
         else:
             cr.set_source_rgb(0.2,0.2,0.2)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(1.0*pix)
         cr.move_to(-100.0, height)
         cr.line_to(100.0, height)
@@ -229,11 +229,11 @@ class Angle(Constraint):
         self.theta = obj.frame.theta + theta
         self.dim=1
     def eval(self):
-        return ({'C':    mat([self.frame.theta - self.theta]),
-                 'Cdot': mat([self.frame.omega]),
+        return ({'C':    np.mat([self.frame.theta - self.theta]),
+                 'Cdot': np.mat([self.frame.omega]),
                  'blocks': [ {'frame' : self.frame,
-                              'j'   : mat([0, 0, 1]),
-                              'jdot': mat([0, 0, 0])} ]})
+                              'j'   : np.mat([0, 0, 1]),
+                              'jdot': np.mat([0, 0, 0])} ]})
     def draw(self, cr, drawForces):
         pass
 

@@ -1,4 +1,4 @@
-from scipy import pi, vectorize
+#from scipy import pi, vectorize
 
 def inch2meter(inch):
     return (inch * 0.0254)

@@ -1,4 +1,4 @@
-import pygtk
+import PyQt4
 pygtk.require('2.0')
 import gtk
 import gtk.gdk

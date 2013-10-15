@@ -1,4 +1,4 @@
-from numpy import mat, sqrt, array, hypot, pi, asarray
+from numpy import mat, sqrt, array, hypot, asarray
 import math 
 
 def radians2rot(theta):
@@ -26,7 +26,7 @@ def dual(x):
     return(mat([[0, -x],
                 [x,  0]]))
 
-def length(x):
+def length_(x):
     "return length of a vector"
     x = asarray(x)
     return sqrt(sum(x*x))

@@ -1,12 +1,14 @@
-from numpy import mat,linspace,zeros,hstack,vstack,isscalar,diff,pi
-from numpy import sqrt,sin,cos,cumsum,mod,sign,arctan2
-from constraint import Constraint,Rod
+from numpy import mat,linspace,hstack,vstack,isscalar,diff,pi
+
+from numpy import sqrt,cumsum,mod,sign,arctan2
+from .constraint import Constraint,Rod
 from scipy import optimize
 from scipy.interpolate import splprep, splev
 from scipy.interpolate.fitpack2 import UnivariateSpline
-import convex_hull
-from object import length
-import pdb
+from dynamics import convex_hull
+from dynamics import misc
+import pdb  # @UnusedImport
+
 
 class Cam(Rod):
     def __init__(self, sim=None, name="", boundary=None,
@@ -25,13 +27,12 @@ class Cam(Rod):
         boundary = cam_object.obj2frame(boundary.T).T + self.center.T
         boundary = convex_hull.hull(boundary)
         # periodic cubic spline fit to boundary
-        self.camtck,foo = splprep([boundary[:,0],boundary[:,1]],
+        self.camtck,foo = splprep([boundary[:,0],boundary[:,1]],  # @UnusedVariable
                                   per=True, quiet=0, k=3, s=0)
 
         # build interpolation spline for line integral
         u=linspace(0,1,num=1000)
         v=splev(u, self.camtck)
-        l = zeros(len(u))
         diffx = diff(v[0])
         diffy = diff(v[1])
         l = sqrt(diffx**2.0 + diffy**2.0)
@@ -116,7 +117,7 @@ class Cam(Rod):
         self.xframe0 = self.cam_frame.world2frame(xtangent)
         self.wound_length = self.integral(1.0, self.camu)
         if (self.total_length is None):
-            self.total_length = length(self.frame0.frame2world(self.xframe0) - \
+            self.total_length = misc.length_(self.frame0.frame2world(self.xframe0) - \
                                        self.frame1.frame2world(self.xframe1)).A1[0] + \
                                 self.wound_length
         self.length = self.total_length - self.wound_length  # rod length
@@ -125,7 +126,7 @@ class Cam(Rod):
     def draw(self, cr, drawForces):
         self.eval(disp=True)
         cr.set_source_rgb(0.3,0.5,1.0)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)
+        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
         cr.set_line_width(1.0*pix)
         for u in linspace(0, 1):
             xf = self.tangent_point(u)
@@ -140,7 +141,7 @@ class Cam(Rod):
         cr.line_to(xtangent[0], xtangent[1])
         cr.stroke()
         Rod.draw(self, cr, drawForces)
-
+        
 def perp_distsq(a, b, c):
     "return square of distance from a to line bc"
     ba = a-b
