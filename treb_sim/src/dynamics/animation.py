@@ -8,32 +8,27 @@ class EnergyBar(QtGui.QWidget):
     def __init__(self, sim, frame):
         super().__init__()
         self.sim, self.frame = sim, frame
-        #self.set_size_request(400,20)
-
-    def draw(self):
-        return
-        # Create the cairo context
-        self.cr = self.window.cairo_create()
-        w,h = self.window.get_size()
-        #print("w=%d h=%d" % (w, h))
-
+    def sizeHint(self):
+        return QtCore.QSize(400,20)
+    def paintEvent(self, event):
+        painter = QtGui.QPainter()
+        painter.begin(self)
         # clear background
-        self.cr.set_source_rgb(0.75,0.75,0.75)
-        self.cr.rectangle(0, 0, w, h)
-        self.cr.fill()
+        w,h = self.size().width(), self.size().height()
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(190,190,190)))
+        painter.drawRect(0, 0, w, h)
 
         # draw potential energy bar
-        potential_fraction = (self.frame.PE() - 
-                              self.frame.PEmin) / self.sim.total_energy
-        self.cr.set_source_rgb(0.1,1.0,0.1)
-        self.cr.rectangle(0, 0, w*potential_fraction, h)
-        self.cr.fill()
+        potential_fraction = float((self.frame.PE() - self.frame.PEmin) /
+                                     self.sim.total_energy)
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(25,255,25)))
+        painter.drawRect(0, 0, int(w*potential_fraction), h)
 
         # draw kinetic energy bar
-        kinetic_fraction = self.frame.KE() / self.sim.total_energy
-        self.cr.set_source_rgb(1.0,0.1,0.1)
-        self.cr.rectangle(w*potential_fraction, 0, w*kinetic_fraction, h)
-        self.cr.fill()
+        kinetic_fraction = float(self.frame.KE() / self.sim.total_energy)
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(255,25,25)))
+        painter.drawRect(w*potential_fraction, 0, int(w*kinetic_fraction), h)
+        painter.end()
 
 class EnergiesBox(QtGui.QGroupBox):
     def __init__(self, sim):
@@ -42,10 +37,10 @@ class EnergiesBox(QtGui.QGroupBox):
         row = 0
         for frame in sim.frames:
             label = QtGui.QLabel(frame.name)
-            grid.addWidget(label, 0, row)
+            grid.addWidget(label, row, 0)
             label.show()
             frame.energy_bar = EnergyBar(sim, frame)
-            grid.addWidget(frame.energy_bar, 1, row)
+            grid.addWidget(frame.energy_bar, row, 1)
             row=row+1
         self.setLayout(grid)
 
@@ -92,18 +87,12 @@ class Animation(QtGui.QWidget):
         vbox.addWidget(draw_forces_button)
         self.setLayout(vbox)
 
-        time_slider.valueChanged.connect(self.draw)
-        draw_forces_button.stateChanged.connect(self.draw)
+        time_slider.valueChanged.connect(self.update)
+        draw_forces_button.stateChanged.connect(self.update)
 
         self.update_range()
 
         self.show()
-
-    def draw(self):
-        self.drawing.draw()
-        for frame in self.sim.frames:
-            frame.energy_bar.draw()
-        self.update_range()
 
     def update_range(self):
         self.range_box.set_range(self.dist(self.sim.Y[self.sim.time_idx]))
@@ -127,26 +116,20 @@ class Animation(QtGui.QWidget):
     '''
 
 
-class Drawing(QtGui.QWidget):
+class Drawing(QtGui.QGraphicsView):
     def __init__(self, time_adj, draw_forces, sim):
-        super().__init__()
         self.time_adj, self.draw_forces, self.sim = time_adj,draw_forces,sim
-        #self.set_size_request(400,400)
+        self.scene = QtGui.QGraphicsScene(-10.0, -10.0, 
+                                          20.0, 20.0) # in drawing units 
+        super().__init__(self.scene)
         self.sim.time_idx = 0
-
-    def draw(self):
-        return
-        # Create the cairo context
-        self.cr = self.window.cairo_create()
-
-        # make window 15x15 meters in drawing units, with origin at center
-        self.draw_w, self.draw_h = 15,15  # in drawing units
-        w,h = self.window.get_size()
-        #self.cr.translate(w*0.5, h*0.65)
-        self.cr.translate(w*0.5, h*0.5)
-        scale = max(w, h) / max(self.draw_w,self.draw_h)
-        self.draw_w = w/scale; self.draw_h = h / scale
-        self.cr.scale(scale,-scale)
+        for f in self.sim.frames:
+            f.initialize_scene(self.scene)
+        for c in self.sim.constraints:
+            c.initialize_scene(self.scene)
+    def sizeHint(self):
+        return QtCore.QSize(400,400)
+    def paintEvent(self, _):
 
         # clear screen
         self.cr.set_source_rgb(1.0,1.0,1.0)
@@ -156,7 +139,6 @@ class Drawing(QtGui.QWidget):
 
         # set the simulation state
         time = self.time_adj.value
-        drawForces = self.draw_forces.get_active()
         self.sim.time_idx = round(time/self.sim.time_step)
         self.sim.time_idx = min(self.sim.num_steps-1, self.sim.time_idx)
         #print "time=", time, "time_idx=", self.sim.time_idx
@@ -169,7 +151,7 @@ class Drawing(QtGui.QWidget):
 
         # draw the objects and constraints
         for f in self.sim.frames:
-            f.draw(self.cr)
+            f.draw()
         for c in self.sim.constraints:
-            c.draw(self.cr, drawForces)
+            c.draw(self.draw_forces.get_active())
 
