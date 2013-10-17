@@ -2,6 +2,7 @@
 import scipy.constants
 import numpy as np
 from . import misc
+from PyQt4 import QtGui, QtCore
 
 
 class Frame:
@@ -72,21 +73,20 @@ class Frame:
                                              self.theta,
                                              self.v.A1,
                                              self.omega))
-        
 
-    def draw(self, cr):
-        for obj in self.objects:
-            obj.draw(cr)
+    def draw(self, scene):
         # draw cg
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(0,0,0))
+        pen.setWidth(0)
         xo = self.origin
-        cr.set_source_rgb(0.0,0.0,0.0)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-        cr.set_line_width(0.5*pix)
-        cr.move_to(xo[0]-0.02, xo[1])
-        cr.line_to(xo[0]+0.02, xo[1])
-        cr.move_to(xo[0], xo[1]-0.02)
-        cr.line_to(xo[0], xo[1]+0.02)
-        cr.stroke()
+        scene.addLine(xo[0]-0.02, xo[1],
+                      xo[0]+0.02, xo[1], pen)
+        scene.addLine(xo[0], xo[1]-0.02,
+                      xo[0], xo[1]+0.02, pen)
+        # draw objects
+        for obj in self.objects:
+            obj.draw(scene)
             
     def Fext(self):
         "return external force vector"

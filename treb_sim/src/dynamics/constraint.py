@@ -2,6 +2,7 @@ import numpy as np
 import pdb  # @UnusedImport
 from .misc import length_
 from math import pi
+from PyQt4 import QtGui, QtCore
 
 DrawForceScale = 400e3
 
@@ -48,29 +49,31 @@ class Nail(Constraint):
                  'blocks': [{'frame':  self.frame,
                              'j':    j,
                              'jdot': jdot}]})
-    def draw(self, cr, drawForces):
-        if (self.enabled):
-            #print "Nail Force=", self.Force.A1
+
+    def draw(self, scene, drawForces):
+        if self.enabled:
             xo = self.frame.frame2world(self.xframe).A1
-            cr.set_source_rgb(0.5,0.5,0.5)
-            pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-            cr.set_line_width(0.5*pix)
-            cr.move_to(xo[0]-0.1, xo[1])
-            cr.line_to(xo[0]+0.1, xo[1])
-            cr.move_to(xo[0], xo[1]-0.1)
-            cr.line_to(xo[0], xo[1]+0.1)
-            cr.stroke()
-            cr.arc(self.xworld.A1[0], self.xworld.A1[1], 0.05, 0, 2.0*pi)
-            cr.stroke()
+            pen = QtGui.QPen()
+            pen.setColor(QtGui.QColor(128,128,128))
+            pen.setWidth(0)
+        
+            scene.addLine(xo[0]-0.1, xo[1],
+                          xo[0]+0.1, xo[1], pen)
+            scene.addLine(xo[0], xo[1]-0.1,
+                          xo[0], xo[1]+0.1, pen)
+            scene.addEllipse(QtCore.QRectF(
+                        QtCore.QPointF(xo[0]-0.05, xo[1]-0.05),
+                        QtCore.QPointF(xo[0]+0.05, xo[1]+0.05)), pen)
+
             # draw force
             if (drawForces):
-                cr.set_line_width(4*pix)
-                cr.move_to(xo[0],xo[1])
-                f = [self.forces[0][0,0]/DrawForceScale,
-                     self.forces[0][1,0]/DrawForceScale]
-                cr.line_to(xo[0]+f[0],
-                           xo[1]+f[1])
-                cr.stroke()
+                pen.setWidth(0.1)
+                force = [self.forces[0][0,0]/DrawForceScale,
+                         self.forces[0][1,0]/DrawForceScale]
+                scene.addLine(xo[0],
+                              xo[1],
+                              xo[0]+force[0],
+                              xo[1]+force[1], pen)
 
 class Pin(Constraint):
     def __init__(self, sim, name,
@@ -98,30 +101,32 @@ class Pin(Constraint):
                  'Cdot': Cdot,
                  'blocks': [ {'frame': self.frame0, 'j': j[0], 'jdot': jdot[0]},
                              {'frame': self.frame1, 'j': j[1], 'jdot': jdot[1]} ]})
-    def draw(self, cr, drawForces):
+
+    def draw(self, scene, drawForces):
         if (self.enabled):
+            pen = QtGui.QPen()
+            pen.setColor(QtGui.QColor(128,128,128))
+            pen.setWidth(0)
             #print "Pin Force=", self.Force.A1
             xo0 = self.frame0.frame2world(self.xframe0).A1
             xo1 = self.frame1.frame2world(self.xframe1).A1
-            cr.set_source_rgb(0.5,0.5,0.5)
-            pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-            cr.set_line_width(0.5*pix)
-            cr.move_to(xo0[0]-0.1, xo0[1])
-            cr.line_to(xo0[0]+0.1, xo0[1])
-            cr.move_to(xo0[0], xo0[1]-0.1)
-            cr.line_to(xo0[0], xo0[1]+0.1)
-            cr.stroke()
-            cr.arc(xo1[0], xo1[1], 0.05, 0, 2.0*pi)
-            cr.stroke()
+            scene.addLine(xo0[0]-0.1, xo0[1],
+                          xo0[0]+0.1, xo0[1], pen)
+            scene.addLine(xo0[0], xo0[1]-0.1,
+                          xo0[0], xo0[1]+0.1, pen)
+            scene.addEllipse(QtCore.QRectF(
+                        QtCore.QPointF(xo1[0]-0.05, xo1[1]-0.05),
+                        QtCore.QPointF(xo1[0]+0.05, xo1[1]+0.05)), pen)
+
             # draw force
             if (drawForces):
-                cr.set_line_width(4*pix)
-                cr.move_to(xo0[0],xo0[1])
-                f = [self.forces[0][0,0]/DrawForceScale,
-                     self.forces[0][1,0]/DrawForceScale]
-                cr.line_to(xo0[0]+f[0],
-                           xo0[1]+f[1])
-                cr.stroke()
+                pen.setWidth(0.1)
+                force = [self.forces[0][0,0]/DrawForceScale,
+                         self.forces[0][1,0]/DrawForceScale]
+                scene.addLine(xo0[0],
+                              xo0[1],
+                              xo0[0]+force[0],
+                              xo0[1]+force[1], pen)
 
 class Rod(Constraint):
     def __init__(self, sim, name,
@@ -162,32 +167,31 @@ class Rod(Constraint):
                  'Cdot': Cdot,
                  'blocks': [ {'frame': self.frame0, 'j': j[0], 'jdot': jdot[0]},
                              {'frame': self.frame1, 'j': j[1], 'jdot': jdot[1]} ]})
-    def draw(self, cr, drawForces):
+    def draw(self, scene, drawForces):
         if (self.enabled):
             #print "Rod Force=", self.Force.A1
+            pen = QtGui.QPen()
+            pen.setColor(QtGui.QColor(128,128,128))
+            pen.setWidth(0)
             xo0 = self.frame0.frame2world(self.xframe0).A1
             xo1 = self.frame1.frame2world(self.xframe1).A1
-            cr.set_source_rgb(0.5,0.5,0.5)
-            pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-            cr.set_line_width(0.5*pix)
-            cr.move_to(xo0[0], xo0[1])
-            cr.line_to(xo1[0], xo1[1])
-            cr.stroke()
+            scene.addLine(xo0[0], xo0[1],
+                          xo1[0], xo1[1], pen)
             # draw force
             if (drawForces):
-                cr.set_line_width(4*pix)
-                cr.move_to(xo0[0],xo0[1])
-                f = [self.forces[0][0,0]/DrawForceScale,
-                     self.forces[0][1,0]/DrawForceScale]
-                cr.line_to(xo0[0]+f[0],
-                           xo0[1]+f[1])
-                cr.stroke()
-                cr.move_to(xo1[0],xo1[1])
-                f = [self.forces[1][0,0]/DrawForceScale,
-                     self.forces[1][1,0]/DrawForceScale]
-                cr.line_to(xo1[0]+f[0],
-                           xo1[1]+f[1])
-                cr.stroke()
+                pen.setWidth(0.1)
+                force = [self.forces[0][0,0]/DrawForceScale,
+                         self.forces[0][1,0]/DrawForceScale]
+                scene.addLine(xo0[0],
+                              xo0[1],
+                              xo0[0]+force[0],
+                              xo0[1]+force[1], pen)
+                force = [self.forces[1][0,0]/DrawForceScale,
+                         self.forces[1][1,0]/DrawForceScale]
+                scene.addLine(xo1[0],
+                              xo1[1],
+                              xo1[0]+force[0],
+                              xo1[1]+force[1], pen)
 
 class Shelf(Nail):
     def __init__(self, sim, name, obj, xobj, height):
@@ -206,20 +210,17 @@ class Shelf(Nail):
                               'j'   : results['blocks'][0]['j'][1,:],
                               'jdot': results['blocks'][0]['jdot'][1,:]}]})
 
-    def draw(self, cr, drawForces):
+    def draw(self, scene, drawForces):
         height = self.xworld.A1[1]
         xo = self.frame.frame2world(self.xframe).A1  # @UnusedVariable
+        pen = QtGui.QPen()
+        pen.setWidth(0)
         if (self.enabled):
-            cr.set_source_rgb(0.0,0.0,0.0)
+            pen.setColor(QtGui.QColor(0, 0, 0))
         else:
-            cr.set_source_rgb(0.2,0.2,0.2)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-        cr.set_line_width(1.0*pix)
-        cr.move_to(-100.0, height)
-        cr.line_to(100.0, height)
-        cr.stroke()
-#        cr.arc(xo[0], xo[1], 0.25, 0, 2.0*pi)
-#        cr.stroke()
+            pen.setColor(QtGui.QColor(51, 51, 51))
+        scene.addLine(-100, height,
+                      100, height, pen)
 
 class Angle(Constraint):
     def __init__(self, sim, name, obj, theta):
@@ -234,6 +235,6 @@ class Angle(Constraint):
                  'blocks': [ {'frame' : self.frame,
                               'j'   : np.mat([0, 0, 1]),
                               'jdot': np.mat([0, 0, 0])} ]})
-    def draw(self, cr, drawForces):
+    def draw(self, scene, drawForces):
         pass
 

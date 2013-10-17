@@ -2,12 +2,14 @@
 import scipy.constants
 import pdb  # @UnusedImport
 import numpy as np
-from math import pi
+import math
 from . import misc
+from PyQt4 import QtGui, QtCore
 
 class Object:
     "object class"
-    def __init__(self, frame, cg=(0.0,0.0), origin=(0.0,0.0), theta=0.0):
+    def __init__(self, frame, cg=(0.0,0.0), origin=(0.0,0.0), theta=0.0,
+                 color=(0.0,0.0,0.0)):
         self.idx = len(frame.objects)
         frame.objects.append(self)
         self.frame = frame
@@ -15,6 +17,7 @@ class Object:
         self.theta = theta
         self.update_working_vars()
         self.cg = np.mat(cg).T
+        self.color = color
 
     def update_working_vars(self):
         # r = [ cos(theta), sin(theta) ]
@@ -22,18 +25,6 @@ class Object:
         # R = |r0  -r1| = | cos  -sin |
         #     |r1   r0|   | sin   cos |
         self.R = misc.rot2matrix(self.r)   # orientation matrix
-
-    def draw(self, cr):
-        cr.set_source_rgb(self.color[0], self.color[1], self.color[2])
-        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-        cr.set_line_width(0.5*pix)
-        ### draw cg
-        # xo = self.obj2world(self.cg)
-        # cr.move_to(xo[0]-0.02, xo[1])
-        # cr.line_to(xo[0]+0.02, xo[1])
-        # cr.move_to(xo[0], xo[1]-0.02)
-        # cr.line_to(xo[0], xo[1]+0.02)
-        # cr.stroke()
 
     def Fext(self):
         "return world-space external force vector"
@@ -87,9 +78,8 @@ class Rectangle(Object):
     def __init__(self, frame, l, w, mass, color,
                  moment=None,
                  cg=(0.,0.), origin=(0.,0.), theta=0.0):
-        Object.__init__(self, frame, cg, origin, theta)
+        super().__init__(frame, cg, origin, theta, color)
         self.l,self.w,self.mass = l,w,mass
-        self.color = color
         if moment is None:
             moment = (l*l + w*w) * mass/12.0
         self.moment = moment
@@ -99,35 +89,42 @@ class Rectangle(Object):
                             [ l/2.0,  w/2.0],
                             [-l/2.0,  w/2.0]]).T
 
-    def draw(self, cr):
-        Object.draw(self, cr)
+    def draw(self, scene):
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(self.color[0]*255,
+                                  self.color[1]*255,
+                                  self.color[2]*255))
+        pen.setWidth(0)
         xw = self.obj2world(self.corners)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-        cr.set_line_width(1.0*pix)
-        cr.move_to(xw[0,0], xw[1,0])
-        for i in [1,2,3]:
-            cr.line_to(xw[0,i], xw[1,i])
-        cr.close_path()
-        cr.stroke()
+        scene.addPolygon(QtGui.QPolygonF(
+                            [QtCore.QPointF(xw[0,0], xw[1,0]),
+                             QtCore.QPointF(xw[0,1], xw[1,1]),
+                             QtCore.QPointF(xw[0,2], xw[1,2]),
+                             QtCore.QPointF(xw[0,3], xw[1,3])]), pen)
 
 class Circle(Object):
     def __init__(self, frame, radius, mass, color,
                  moment=None,
                  cg=(0.,0.), origin=(0.,0.), theta=0.0):
-        Object.__init__(self, frame, cg, origin, theta)
+        super().__init__(frame, cg, origin, theta, color)
         self.radius,self.mass = radius,mass
-        self.color = color
         if moment is None:
             moment = mass * radius * radius / 2
         self.moment = moment
 
-    def draw(self, cr):
-        Object.draw(self, cr)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-        cr.set_line_width(1.0*pix)
+    def draw(self, scene):
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(self.color[0]*255,
+                                  self.color[1]*255,
+                                  self.color[2]*255))
+        pen.setWidth(0)
         center = self.obj2world(np.mat((0,0)).T)
-        cr.arc(center[0,0], center[1,0], self.radius, 0, 2.0*pi)
-        cr.stroke()
+        radius2 = self.radius/math.sqrt(2)
+        scene.addEllipse(QtCore.QRectF(QtCore.QPointF(center[0]-radius2,
+                                                      center[1]-radius2),
+                                       QtCore.QPointF(center[0]+radius2,
+                                                      center[1]+radius2)),
+                         pen)
 
 class Beam(Object):
     def __init__(self, frame,
@@ -137,10 +134,9 @@ class Beam(Object):
                  color,
                  origin=(0.,0.),
                  theta=0.0):
-        Object.__init__(self, frame, origin=origin, theta=theta)
+        super().__init__(frame, origin=origin, theta=theta, color=color)
         self.x0,self.t0,self.d0 = x0,t0,d0
         self.x1,self.t1,self.d1 = x1,t1,d1
-        self.color = color
 
         xvec = np.linspace(x0, x1, num=100)
         self.mass = np.trapz(self.t(xvec)*self.d(xvec)*density, xvec)
@@ -174,14 +170,15 @@ class Beam(Object):
             raise ValueError
         return depth
 
-    def draw(self, cr):
-        Object.draw(self, cr)
+    def draw(self, scene):
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(self.color[0]*255,
+                                  self.color[1]*255,
+                                  self.color[2]*255))
+        pen.setWidth(0)
         xw = self.obj2world(self.corners)
-        pix,foo = cr.device_to_user_distance(1.0,1.0)  # @UnusedVariable
-        cr.set_line_width(1.0*pix)
-        cr.move_to(xw[0,0], xw[1,0])
-        for i in [1,2,3]:
-            cr.line_to(xw[0,i], xw[1,i])
-        cr.close_path()
-        cr.stroke()
-
+        scene.addPolygon(QtGui.QPolygonF(
+                            [QtCore.QPointF(xw[0,0], xw[1,0]),
+                             QtCore.QPointF(xw[0,1], xw[1,1]),
+                             QtCore.QPointF(xw[0,2], xw[1,2]),
+                             QtCore.QPointF(xw[0,3], xw[1,3])]), pen)
