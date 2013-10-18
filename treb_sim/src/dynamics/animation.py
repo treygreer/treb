@@ -128,8 +128,10 @@ class Drawing(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene()
         
         super().__init__(self.scene)
+        self.setDragMode(self.ScrollHandDrag)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        self.setTransformationAnchor(self.AnchorUnderMouse)
         self.setTransform(QtGui.QTransform.fromScale(1.0, -1.0))
         self.sim.time_idx = 0
         self.scene.setSceneRect(-10.0, -3.0,
@@ -137,6 +139,12 @@ class Drawing(QtGui.QGraphicsView):
         self.scale(32.0,32.0)
     def sizeHint(self):
         return QtCore.QSize(400,400)
+    def wheelEvent(self, event):
+        scale_factor = 1.15
+        if event.delta() > 0:
+            self.scale(scale_factor, scale_factor)
+        else:
+            self.scale(1/scale_factor, 1/scale_factor)
     def update(self):
         self.scene.clear()
         # draw the objects and constraints
