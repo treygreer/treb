@@ -6,7 +6,7 @@ from PyQt4 import QtGui, QtCore
 
 DrawForceScale = 400e3
 
-class Constraint:
+class Spring:
     def __init__(self, sim=None, name=""):
         if(sim):
             self.sim = sim
@@ -19,9 +19,9 @@ class Constraint:
         forces = self.sim.F[:, self.idx, i]
         return np.sqrt(forces[:,0]**2 + forces[:,1]**2)
 
-class Nail(Constraint):
+class NailSpring(Spring):
     def __init__(self, sim, name, obj, xobj, xworld):
-        Constraint.__init__(self, sim, name)
+        super().__init__(sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
         self.xframe = obj.obj2frame(np.mat(xobj).T)
@@ -189,47 +189,4 @@ class Rod(Constraint):
                               xo1[1],
                               xo1[0]+force[0],
                               xo1[1]+force[1], pen)
-
-class Shelf(Nail):
-    def __init__(self, sim, name, obj, xobj, height):
-        Constraint.__init__(self, sim, name)
-        self.frames = [obj.frame]
-        self.frame = obj.frame
-        self.xframe = obj.obj2frame(np.mat(xobj).T)
-        self.xworld = np.mat([0, height]).T
-        self.dim=1
-    def eval(self):
-        # evaluate as though a Nail, then pick out second (y) row of results
-        results = Nail.eval(self)
-        return ({'C': results['C'][1,:],
-                 'Cdot': results['Cdot'][1,:],
-                 'blocks': [ {'frame' : self.frame,
-                              'j'   : results['blocks'][0]['j'][1,:],
-                              'jdot': results['blocks'][0]['jdot'][1,:]}]})
-    def draw(self, scene, drawForces):
-        height = self.xworld.A1[1]
-        pen = QtGui.QPen()
-        pen.setWidth(0)
-        if (self.enabled):
-            pen.setColor(QtGui.QColor(0, 0, 0))
-        else:
-            pen.setColor(QtGui.QColor(51, 51, 51))
-        scene.addLine(-100, height,
-                      100, height, pen)
-
-class Angle(Constraint):
-    def __init__(self, sim, name, obj, theta):
-        Constraint.__init__(self, sim, name)
-        self.frames = [obj.frame]
-        self.frame = obj.frame
-        self.theta = obj.frame.theta + theta
-        self.dim=1
-    def eval(self):
-        return ({'C':    np.mat([self.frame.theta - self.theta]),
-                 'Cdot': np.mat([self.frame.omega]),
-                 'blocks': [ {'frame' : self.frame,
-                              'j'   : np.mat([0, 0, 1]),
-                              'jdot': np.mat([0, 0, 0])} ]})
-    def draw(self, scene, drawForces):
-        pass
 

@@ -5,6 +5,7 @@ import dynamics.simulation
 from dynamics.frame import Frame
 from dynamics.object import Rectangle, Circle, Beam
 from dynamics.constraint import Nail, Rod, Pin, Shelf
+from dynamics.animation import Animation
 
 from dynamics.constants import foot2meter, inch2meter, meter2foot
 from dynamics.misc import length_, rot2radians, radians2rot
@@ -21,25 +22,25 @@ from scipy import deg2rad, rad2deg
 from pylab import plot
 
 scipy.set_printoptions(precision=5, linewidth=200)
-def treb( sling_length = 8.54665,              # sling length, feet
-          ramp_length = 11,                    # ramp length, feet
-          link_sum = 5.587,                    # sum of upper and lower link lengths, feet
+def treb( sling_length = 8.54665,    # sling length, feet
+          ramp_length = 11,          # ramp length, feet
+          link_sum = 5.587,          # sum of upper and lower link lengths, feet
           hanger_x = 11.38508,       # feet
           hanger_y = -2,
-          hinge_x = (6.+2.)/12.,    # feet
+          hinge_x = (6.+2.)/12.,     # feet
           hinge_y = -4.0,
-          alpha=90,              # arm start angle, ccw from horizontal (degrees)
-          omega=10,              # cocked angle between upper link and lower link (degrees)
-          cw_drop = 5.0,         # feet
-          cw_weight = 4000.0,    # pounds
-          long_arm_weight9 = 70,  # weight at nominal 9 foot length, pounds
-          short_arm_weight = 70.0,   # pounds
+          alpha=90,             # arm start angle, ccw from horizontal (degrees)
+          omega=10,             # cocked angle between upper link and lower link
+          cw_drop = 5.0,        # feet
+          cw_weight = 4000.0,   # pounds
+          long_arm_weight9 = 70, # weight at nominal 9 foot length, pounds
+          short_arm_weight = 70.0, # pounds
           upper_link_in2 = 2*6.0,  # cross section, sq inches
           lower_link_in2 = 2*6.0,  # cross section, sq inches
           connector_in2 = pi*(2.0/2.0)**2, # cross section, sq inches
           ramp_weight = 400, # pounds
           pumpkin_weight = 10.0,     # pounds
-          sim_duration = 2.0,  # seconds
+          sim_duration = 3.0,  # seconds
           release_angle = 40,  # pumpkin release angle, degrees above horizon
           dry_fire = False,    # True to disable sling from time 0
           time_step = 0.001,   # seconds
@@ -50,7 +51,8 @@ def treb( sling_length = 8.54665,              # sling length, feet
           arm_end_thick = (3.+1./8)/12.,
           debug = True):
 
-    sim = dynamics.simulation.Simulation(max_time=sim_duration, time_step=time_step)
+    sim = dynamics.simulation.Simulation(max_time=sim_duration,
+                                         time_step=time_step)
     sim.debug=debug
 
     # convert arguments to metric and radians
@@ -142,7 +144,8 @@ def treb( sling_length = 8.54665,              # sling length, feet
         print ("  theta=", rad2deg(theta))
         print ("  connector_length=", meter2foot(connector_length))
         print ("  short_arm_length=", meter2foot(short_arm_length))
-        print ("  axle_rest_connection_distance=", meter2foot(axle_rest_connection_distance))
+        print ("  axle_rest_connection_distance=",
+                meter2foot(axle_rest_connection_distance))
         raise ValueError
 
     # short arm angle measured at axle
@@ -251,7 +254,8 @@ def treb( sling_length = 8.54665,              # sling length, feet
     sim.pumpkinFrame=Frame(sim, "pumpkin", origin=pumpkin_ctr)
     sim.pumpkinFrame.pumpkin=Circle(sim.pumpkinFrame,
                                              radius=pumpkin_diameter/2.0,
-                                             mass=pumpkin_mass, color=(1.0, 0.5, 0))
+                                             mass=pumpkin_mass,
+                                             color=(1.0, 0.5, 0))
 
     # initialize frames
     for frame in sim.frames:
@@ -298,7 +302,8 @@ def treb( sling_length = 8.54665,              # sling length, feet
                                      xobj1 = (connector_length/2.0, 0.0))
 
     sim.sling=Rod(sim, "sling",
-                           obj0=sim.armFrame.long_arm, xobj0=(-long_arm_length, 0),
+                           obj0=sim.armFrame.long_arm, xobj0=(-long_arm_length,
+                                                              0),
                            obj1=sim.pumpkinFrame.pumpkin, xobj1=(0.0,0.0),
                            length=sling_length)
 
@@ -335,7 +340,7 @@ def treb( sling_length = 8.54665,              # sling length, feet
 def circle_intersection(ctr1, rad1, ctr2, rad2):
     """Return intersection of two circles.
 
-    Intersection returned is the one in the ccw direction from the vector 
+    Intersection returned is the one in the ccw direction from the vector
     ctr1->ctr2.
 
     """
@@ -347,7 +352,7 @@ def circle_intersection(ctr1, rad1, ctr2, rad2):
     beta = rot2radians(ctr2-ctr1)
     isect = ctr1 + rad1*radians2rot(alpha+beta)
     return isect
-        
+
 def continue_sim(sim, t, y):
     "continue simulation?"
 
@@ -404,11 +409,10 @@ def plotEnergies(sim):
                   trebKEvec(sim)))
     plot (sim.t, trebKEvec(sim))
     plot (sim.t, sim.pumpkinFrame.KEvec() + sim.pumpkinFrame.PEvec())
-    
 
 def opt(X):
     global sim, X0
-    X0 = X 
+    X0 = X
     print( "X=", X)
     try:
         sim = treb(debug=False, time_step=0.0001, sim_duration=0.7,
@@ -433,8 +437,9 @@ X0 = array([8.54665,   5.587,    11.38508])
 #upper =  array([ 12.0,     9.0,      12.0])
 #result=scipy.optimize.fmin(opt, X0)
 #result=scipy.optimize.fmin_l_bfgs_b(opt, X0, approx_grad=True, bounds=None)
-#result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001, feps=1e-60, full_output=True)
+#result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001,
+#                             feps=1e-60, full_output=True)
 
 if __name__ == '__main__':
     sim=treb(debug=True)
-    anim=dynamics.animation.Animation(sim, dist)
+    anim=Animation(sim, dist)

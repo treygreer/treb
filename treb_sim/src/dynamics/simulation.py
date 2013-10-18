@@ -9,8 +9,8 @@ class Simulation:
         self.num_steps = round(max_time / time_step) + 1
 
         # numeric drift correction constants
-        self.ks = 1  # proportional restoring force
-        self.kd = 1  # differential resotring force
+        self.ks = 0 #1  # proportional restoring force
+        self.kd = 0 #1  # differential restoring force
 
         self.frames = []
         self.constraints = []
@@ -25,7 +25,7 @@ class Simulation:
                 Cdim = Cdim + constraint.dim
         return Cdim
 
-    def _deriv(self, time, y):
+    def deriv(self, time, y):
         """Given a time and state vector y, returns the derivative dy."""
         self.num_calls = self.num_calls+1
 
@@ -58,9 +58,8 @@ class Simulation:
                 row = row + constraint.dim
 
         # solve linear constraint system
-        JMinv = J*self.Minv
-        A = JMinv*J.T
-        b = -(Jdot*v + JMinv*self.Fext + self.ks*C + self.kd*Cdot)
+        A = J * self.Minv * J.T
+        b = -(Jdot*v + J*self.Minv*self.Fext + self.ks*C + self.kd*Cdot)
         lambda_ = A.I * b
 
         # write forces back into constraints for diagnostics and plotting
@@ -68,8 +67,7 @@ class Simulation:
         for constraint in self.constraints:
             if constraint.enabled:
                 constraint.lambda_ = lambda_[row:row+constraint.dim]
-                Force = J.T[:,row:row+constraint.dim] * \
-                        constraint.lambda_
+                Force = J.T[:,row:row+constraint.dim] * constraint.lambda_
                 constraint.forces = []
                 for frame in constraint.frames:
                     F = Force[3*frame.idx:3*frame.idx+3]
@@ -126,7 +124,7 @@ class Simulation:
             self.constraints_enabled[0,c] = constraint.enabled
             c=c+1
 
-        r = ode(self._deriv)
+        r = ode(self.deriv)
         r.set_integrator('vode', rtol=1e-9, atol=1e-6)
         r.set_initial_value(self.Y[0],t=0.0)
 

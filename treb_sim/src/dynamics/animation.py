@@ -112,7 +112,7 @@ class Animation(QtGui.QWidget):
             constraint.enabled = self.sim.constraints_enabled[time_idx,c_idx]
             c_idx=c_idx+1
         self.sim.time_idx = time_idx
-        self.sim._deriv(time_idx * self.sim.time_step, self.sim.Y[time_idx])
+        self.sim.deriv(time_idx * self.sim.time_step, self.sim.Y[time_idx])
 
     def update(self):
         # set the simulation state
