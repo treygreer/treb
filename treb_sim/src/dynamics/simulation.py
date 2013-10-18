@@ -1,3 +1,4 @@
+import numpy as np
 from numpy import mat, zeros
 from scipy.integrate import ode
 
@@ -144,10 +145,6 @@ class Simulation:
                         self.F[time_idx, c, f, :] = constraint.forces[f].T
                 c=c+1
 
-            # update minimum potential energies
-            for frame in self.frames:
-                frame.PEmin = min(frame.PEmin, frame.PE())
-
             time_idx = time_idx + 1
 
             if continue_fun and not continue_fun(self, r.t, r.y):
@@ -158,3 +155,7 @@ class Simulation:
         self.F.resize([time_idx] + list(self.F.shape[1:4]))
         self.t.resize([time_idx])
         self.constraints_enabled.resize([time_idx, self.constraints_enabled.shape[1]])
+        
+        # update minimum potential energies
+        for frame in self.frames:
+            frame.PEmin = np.min(frame.PEvec())

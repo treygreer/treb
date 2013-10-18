@@ -71,7 +71,7 @@ class TimeSlider(QtGui.QHBoxLayout):
         self._slider.setPageStep(sim.Y.shape[0]/100)
         self._slider.setSingleStep(1)
         self._slider.valueChanged.connect(self._value_changed)
-    def _value_changed(self, value):
+    def _value_changed(self, _):
         self._text.setText("{:.3f} sec".format(self.time))
         self.timeChanged.emit()
     @property
@@ -82,6 +82,7 @@ class Animation(QtGui.QWidget):
     def __init__(self, sim, dist):
         super().__init__()
         self.sim, self.dist = sim, dist
+        self.set_sim_state(time_idx=0)
         self.sim.total_energy = sum([frame.KE() + frame.PE() - frame.PEmin
                                       for frame in sim.frames])
 
@@ -105,28 +106,30 @@ class Animation(QtGui.QWidget):
         self.update()
         self.show()
 
+    def set_sim_state(self, time_idx):
+        c_idx=0
+        for constraint in self.sim.constraints:
+            constraint.enabled = self.sim.constraints_enabled[time_idx,c_idx]
+            c_idx=c_idx+1
+        self.sim.time_idx = time_idx
+        self.sim._deriv(time_idx * self.sim.time_step, self.sim.Y[time_idx])
+
     def update(self):
         # set the simulation state
         time = self.time_slider.time
-        self.sim.time_idx = round(time/self.sim.time_step)
-        self.sim.time_idx = min(self.sim.num_steps-1, self.sim.time_idx)
-        #print "time=", time, "time_idx=", self.sim.time_idx
-        c_idx=0
-        for constraint in self.sim.constraints:
-            constraint.enabled = self.sim.constraints_enabled \
-                [self.sim.time_idx,c_idx]
-            c_idx=c_idx+1
-        self.sim._deriv(time, self.sim.Y[self.sim.time_idx])
-        self.range_box.set_range(self.dist(self.sim.Y[self.sim.time_idx]))
-        super().update()
+        time_idx = round(time/self.sim.time_step)
+        time_idx = min(self.sim.num_steps-1, time_idx)
+        self.set_sim_state(time_idx)
+        self.range_box.set_range(self.dist(self.sim.Y[time_idx]))
         self.drawing.update()
+        super().update()
 
 class Drawing(QtGui.QGraphicsView):
     def __init__(self, time_slider, draw_forces_button, sim):
         self.time_slicer = time_slider
         self.draw_forces_button, self.sim = draw_forces_button, sim
         self.scene = QtGui.QGraphicsScene()
-        
+
         super().__init__(self.scene)
         self.setDragMode(self.ScrollHandDrag)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -151,6 +154,6 @@ class Drawing(QtGui.QGraphicsView):
         for frame in self.sim.frames:
             frame.draw(self.scene)
         for constraint in self.sim.constraints:
-            constraint.draw(self.scene, 
+            constraint.draw(self.scene,
                             self.draw_forces_button.isChecked())
         super().update()

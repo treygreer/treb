@@ -3,6 +3,7 @@ import scipy.constants
 import numpy as np
 from . import misc
 from PyQt4 import QtGui, QtCore
+import pdb
 
 
 class Frame:
@@ -18,7 +19,6 @@ class Frame:
         self.v = np.mat((0.0,0.0)).T
         self.update_working_vars()
         self.objects = []
-        self.PEmin = float('inf')
 
     def init(self, cg=None, mass=None, moment=None):
         if (cg or mass or moment):
@@ -105,7 +105,10 @@ class Frame:
 
     def PE(self):
         "return potential energy at current time"
-        return (self.origin[1,0]*self.mass*scipy.constants.g)
+        potential = self.origin[1,0]*self.mass*scipy.constants.g
+        if self.name=='connector' and potential < -1600:
+            pdb.set_trace()
+        return potential
 
     def PEvec(self):
         "return potential energy vector"

@@ -209,10 +209,8 @@ class Shelf(Nail):
                  'blocks': [ {'frame' : self.frame,
                               'j'   : results['blocks'][0]['j'][1,:],
                               'jdot': results['blocks'][0]['jdot'][1,:]}]})
-
     def draw(self, scene, drawForces):
         height = self.xworld.A1[1]
-        xo = self.frame.frame2world(self.xframe).A1  # @UnusedVariable
         pen = QtGui.QPen()
         pen.setWidth(0)
         if (self.enabled):

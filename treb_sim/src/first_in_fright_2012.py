@@ -229,7 +229,7 @@ def treb( sling_length = 8.54665,              # sling length, feet
 
     # Connector frame origin is the end of the short arm
     connector_mass = connector_length * connector_m2 * steel_density
-    sim.connectorFrame = Frame(sim, "connecor", origin=cocked_short_arm_end,
+    sim.connectorFrame = Frame(sim, "connector", origin=cocked_short_arm_end,
                                         theta = rot2radians(cocked_connection_pos - cocked_short_arm_end))
     sim.connectorFrame.connector = Rectangle(sim.connectorFrame, l=connector_length,
                                                       w=inch2meter(2),
@@ -437,4 +437,4 @@ X0 = array([8.54665,   5.587,    11.38508])
 
 if __name__ == '__main__':
     sim=treb(debug=True)
-    #anim=dynamics.Animation(sim, dist)
+    anim=dynamics.animation.Animation(sim, dist)
