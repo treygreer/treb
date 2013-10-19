@@ -24,21 +24,20 @@ class Frame:
         if (cg or mass or moment):
             assert (cg and mass and moment)
             self.mass = mass
-            self.cg = cg
         else:
             # compute frame's mass and center of gravity
-            self.cg = np.mat((0.0,0.0)).T
+            cg = np.mat((0.0,0.0)).T
             self.mass = 0.0
             for obj in self.objects:
                 self.mass += obj.mass
-                self.cg += obj.mass * obj.obj2frame(obj.cg)
-            self.cg /= self.mass
+                cg += obj.mass * obj.obj2frame(obj.cg)
+            cg /= self.mass
 
         # The frame's center of gravity must be at its origin for the motion equations
         #  to work.  Offset all objects and the frame's initial position.
-        self.origin = self.frame2world(self.cg)  # update frame origin in worldspace
+        self.origin = self.frame2world(cg)  # update frame origin in worldspace
         for obj in self.objects:
-            obj.origin -= self.cg  # update object origin in framespace
+            obj.origin -= cg  # update object origin in framespace
 
         # compute the frame's moment based on new object positions about frame's cg
         # (frame origin)
@@ -98,7 +97,7 @@ class Frame:
         return ([[1.0/self.mass, 0, 0],
                  [0, 1.0/self.mass, 0],
                  [0, 0, 1.0/self.moment]])
-                 
+
     def Mdiag(self):
         "return mass matrix diagonal"
         return ([self.mass, self.mass, self.moment])
@@ -106,8 +105,6 @@ class Frame:
     def PE(self):
         "return potential energy at current time"
         potential = self.origin[1,0]*self.mass*scipy.constants.g
-        if self.name=='connector' and potential < -1600:
-            pdb.set_trace()
         return potential
 
     def PEvec(self):

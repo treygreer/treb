@@ -11,41 +11,34 @@ class Spring:
         if(sim):
             self.sim = sim
             self.name = name
-            self.idx = len(sim.constraints)
-            sim.constraints.append(self)
-        self.enabled = True
+            self.idx = len(sim.springs)
+            sim.springs.append(self)
 
     def Fvec(self, i=0):
         forces = self.sim.F[:, self.idx, i]
         return np.sqrt(forces[:,0]**2 + forces[:,1]**2)
 
 class NailSpring(Spring):
-    def __init__(self, sim, name, obj, xobj, xworld):
+    '''spring between object position and world position'''
+    def __init__(self, sim, name, obj, xobj, xworld, 
+                 spring_constant):
         super().__init__(sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
         self.xframe = obj.obj2frame(np.mat(xobj).T)
         self.xworld = np.mat(xworld).T
+        self.spring_constant = spring_constant
         self.dim=2
 
-    def eval(self):
+    def force(self):
         C    = self.frame.frame2world(self.xframe) - self.xworld
-        #if length(C) > 1e-3:
-        #    print "nail error:  name=", self.name, "C=", C.T
-        Cdot = self.frame.frame2worldv(self.xframe)
-        # C = x + R*xframe - xworld
-        # C0 = x0 + cos(theta)*xframe0 - sin(theta)*xframe1 - xworld0
-        # C1 = x1 + sin(theta)*xframe0 + cos(theta)*xframe1 - xworld1
-        j = np.hstack([np.eye(2), self.frame.dxdtheta(self.xframe)])
-        # Cdot   = v + Rdot*xframe
-        # Cdot0 = v0 + omega*(-sin(theta)*xframe0 - cos(theta)*xframe1)
-        # Cdot1 = v1 + omega*( cos(theta)*xframe0 - sin(theta)*xframe1)
-        jdot = np.hstack([np.zeros([2,2]), self.frame.dvdtheta(self.xframe)])
-        return ({'C': C,
-                 'Cdot': Cdot,
-                 'blocks': [{'frame':  self.frame,
-                             'j':    j,
-                             'jdot': jdot}]})
+        # torque is cross product (done in world space) of 
+        #  'arm' vector from frame's cg to spring point and 
+        #  force vector 
+        arm_vec = self.frame.frame2world(self.xframe) - self.frame.origin
+        force_vec = (-C * self.spring_constant).A1
+        torque = np.asscalar(arm_vec[0]*force_vec[1] - arm_vec[1]*force_vec[0])
+        return np.mat([force_vec[0], force_vec[1], torque]).T
 
     def draw(self, scene, drawForces):
         if self.enabled:
@@ -65,128 +58,10 @@ class NailSpring(Spring):
             # draw force
             if (drawForces):
                 pen.setWidth(0.1)
-                force = [self.forces[0][0,0]/DrawForceScale,
-                         self.forces[0][1,0]/DrawForceScale]
+                force = [self.forces[0].A1[0]/DrawForceScale,
+                         self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo[0],
                               xo[1],
                               xo[0]+force[0],
                               xo[1]+force[1], pen)
-
-class Pin(Constraint):
-    def __init__(self, sim, name,
-                 obj0, xobj0,
-                 obj1, xobj1):
-        Constraint.__init__(self, sim, name)
-        self.frames = [obj0.frame, obj1.frame]
-        self.frame0,self.frame1   = obj0.frame, obj1.frame
-        self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
-        self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
-        self.dim=2
-    def eval(self):
-        C    = (self.frame0.frame2world(self.xframe0) -
-                self.frame1.frame2world(self.xframe1))
-        if length_(C) > 1e-3:
-            print("pin C=", C)
-            raise ValueError
-        Cdot = (self.frame0.frame2worldv(self.xframe0) -
-                self.frame1.frame2worldv(self.xframe1))
-        j =    [ np.hstack([np.eye(2), self.frame0.dxdtheta(self.xframe0)]),
-                -np.hstack([np.eye(2), self.frame1.dxdtheta(self.xframe1)])]
-        jdot = [ np.hstack([np.zeros([2,2]), self.frame0.dvdtheta(self.xframe0)]),
-                -np.hstack([np.zeros([2,2]), self.frame1.dvdtheta(self.xframe1)])]
-        return ({'C': C,
-                 'Cdot': Cdot,
-                 'blocks': [ {'frame': self.frame0, 'j': j[0], 'jdot': jdot[0]},
-                             {'frame': self.frame1, 'j': j[1], 'jdot': jdot[1]} ]})
-
-    def draw(self, scene, drawForces):
-        if (self.enabled):
-            pen = QtGui.QPen()
-            pen.setColor(QtGui.QColor(128,128,128))
-            pen.setWidth(0)
-            #print "Pin Force=", self.Force.A1
-            xo0 = self.frame0.frame2world(self.xframe0).A1
-            xo1 = self.frame1.frame2world(self.xframe1).A1
-            scene.addLine(xo0[0]-0.1, xo0[1],
-                          xo0[0]+0.1, xo0[1], pen)
-            scene.addLine(xo0[0], xo0[1]-0.1,
-                          xo0[0], xo0[1]+0.1, pen)
-            scene.addEllipse(QtCore.QRectF(
-                        QtCore.QPointF(xo1[0]-0.05, xo1[1]-0.05),
-                        QtCore.QPointF(xo1[0]+0.05, xo1[1]+0.05)), pen)
-
-            # draw force
-            if (drawForces):
-                pen.setWidth(0.1)
-                force = [self.forces[0][0,0]/DrawForceScale,
-                         self.forces[0][1,0]/DrawForceScale]
-                scene.addLine(xo0[0],
-                              xo0[1],
-                              xo0[0]+force[0],
-                              xo0[1]+force[1], pen)
-
-class Rod(Constraint):
-    def __init__(self, sim, name,
-                 obj0, xobj0, obj1, xobj1, length):
-        Constraint.__init__(self, sim, name)
-        self.frames = [obj0.frame, obj1.frame]
-        self.frame0,self.frame1   = obj0.frame, obj1.frame
-        self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
-        self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
-        self.length = length
-        self.dim = 1
-    def eval(self):
-        xvec =  (self.frame1.frame2world(self.xframe1) -
-                 self.frame0.frame2world(self.xframe0))
-        vvec =  (self.frame1.frame2worldv(self.xframe1) -
-                 self.frame0.frame2worldv(self.xframe0))
-        C    = xvec.T*xvec - self.length*self.length
-        if length_(C) > 1e-3:
-            print("rod error:  ")
-            print("  name=", self.name, "rodC=", C, "xvec=", xvec.T)
-            #raise ValueError
-        Cdot = 2*xvec.T*vvec
-        j    = [-2*np.hstack([xvec[0],
-                           xvec[1],
-                           self.frame0.dxdtheta(self.xframe0).T * xvec]),
-                 2*np.hstack([xvec[0],
-                           xvec[1],
-                           self.frame1.dxdtheta(self.xframe1).T * xvec])]
-        jdot = [-2*np.hstack([vvec[0],
-                           vvec[1],
-                           self.frame0.dvdtheta(self.xframe0).T * xvec +
-                           self.frame0.dxdtheta(self.xframe0).T * vvec]),
-                 2*np.hstack([vvec[0],
-                           vvec[1],
-                           self.frame1.dvdtheta(self.xframe1).T * xvec +
-                           self.frame1.dxdtheta(self.xframe1).T * vvec])]
-        return ({'C': C,
-                 'Cdot': Cdot,
-                 'blocks': [ {'frame': self.frame0, 'j': j[0], 'jdot': jdot[0]},
-                             {'frame': self.frame1, 'j': j[1], 'jdot': jdot[1]} ]})
-    def draw(self, scene, drawForces):
-        if (self.enabled):
-            #print "Rod Force=", self.Force.A1
-            pen = QtGui.QPen()
-            pen.setColor(QtGui.QColor(128,128,128))
-            pen.setWidth(0)
-            xo0 = self.frame0.frame2world(self.xframe0).A1
-            xo1 = self.frame1.frame2world(self.xframe1).A1
-            scene.addLine(xo0[0], xo0[1],
-                          xo1[0], xo1[1], pen)
-            # draw force
-            if (drawForces):
-                pen.setWidth(0.1)
-                force = [self.forces[0][0,0]/DrawForceScale,
-                         self.forces[0][1,0]/DrawForceScale]
-                scene.addLine(xo0[0],
-                              xo0[1],
-                              xo0[0]+force[0],
-                              xo0[1]+force[1], pen)
-                force = [self.forces[1][0,0]/DrawForceScale,
-                         self.forces[1][1,0]/DrawForceScale]
-                scene.addLine(xo1[0],
-                              xo1[1],
-                              xo1[0]+force[0],
-                              xo1[1]+force[1], pen)
 

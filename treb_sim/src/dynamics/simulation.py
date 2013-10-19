@@ -14,6 +14,7 @@ class Simulation:
 
         self.frames = []
         self.constraints = []
+        self.springs = []
 
         self.num_calls = 0
 
@@ -57,12 +58,18 @@ class Simulation:
                     Jdot[row:row+constraint.dim,3*fidx:3*fidx+3] = block['jdot']
                 row = row + constraint.dim
 
+        Fspring = mat(zeros(shape=[3*len(self.frames), 1]))
+        for spring in self.springs:
+            idx = spring.frame.idx 
+            Fspring[3*idx:3*(idx+1), 0] += spring.force()
+
         # solve linear constraint system
         A = J * self.Minv * J.T
-        b = -(Jdot*v + J*self.Minv*self.Fext + self.ks*C + self.kd*Cdot)
+        b = -(Jdot*v + J*self.Minv*(self.Fext+Fspring) + self.ks*C + self.kd*Cdot)
         lambda_ = A.I * b
 
-        # write forces back into constraints for diagnostics and plotting
+        # write forces back into constraints and springs for 
+        #   diagnostics and plotting
         row = 0   # row index of J
         for constraint in self.constraints:
             if constraint.enabled:
@@ -79,7 +86,7 @@ class Simulation:
 
         # calculate system accelerations
         F = J.T * lambda_
-        vdot = self.Minv * (F + self.Fext)
+        vdot = self.Minv * (F + self.Fext + Fspring)
 
         # gather dy from frames and return
         dy   = zeros(6*len(self.frames))

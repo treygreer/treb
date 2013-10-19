@@ -1,6 +1,8 @@
 import numpy as np
 import pdb  # @UnusedImport
 from .misc import length_
+from .object import Object
+from .frame import Frame
 from math import pi
 from PyQt4 import QtGui, QtCore
 
@@ -30,16 +32,11 @@ class Nail(Constraint):
 
     def eval(self):
         C    = self.frame.frame2world(self.xframe) - self.xworld
-        #if length(C) > 1e-3:
-        #    print "nail error:  name=", self.name, "C=", C.T
+        if not isinstance(self, Shelf) and length_(C) > 1e-3:
+            print("nail error:  name=", self.name, "C=", C.T)
+            raise ValueError
         Cdot = self.frame.frame2worldv(self.xframe)
-        # C = x + R*xframe - xworld
-        # C0 = x0 + cos(theta)*xframe0 - sin(theta)*xframe1 - xworld0
-        # C1 = x1 + sin(theta)*xframe0 + cos(theta)*xframe1 - xworld1
         j = np.hstack([np.eye(2), self.frame.dxdtheta(self.xframe)])
-        # Cdot   = v + Rdot*xframe
-        # Cdot0 = v0 + omega*(-sin(theta)*xframe0 - cos(theta)*xframe1)
-        # Cdot1 = v1 + omega*( cos(theta)*xframe0 - sin(theta)*xframe1)
         jdot = np.hstack([np.zeros([2,2]), self.frame.dvdtheta(self.xframe)])
         return ({'C': C,
                  'Cdot': Cdot,
@@ -65,8 +62,8 @@ class Nail(Constraint):
             # draw force
             if (drawForces):
                 pen.setWidth(0.1)
-                force = [self.forces[0][0,0]/DrawForceScale,
-                         self.forces[0][1,0]/DrawForceScale]
+                force = [self.forces[0].A1[0]/DrawForceScale,
+                         self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo[0],
                               xo[1],
                               xo[0]+force[0],
@@ -75,18 +72,26 @@ class Nail(Constraint):
 class Pin(Constraint):
     def __init__(self, sim, name,
                  obj0, xobj0,
-                 obj1, xobj1):
+                 obj1, xobj1=None):
         Constraint.__init__(self, sim, name)
-        self.frames = [obj0.frame, obj1.frame]
-        self.frame0,self.frame1   = obj0.frame, obj1.frame
+        self.frame0 = obj0.frame
         self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
-        self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
+        if isinstance(obj1, Object):
+            self.frame1 = obj1.frame
+            self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
+        else:
+            assert isinstance(obj1, Frame)
+            assert xobj1 is None
+            self.frame1 = obj1
+            self.xframe1 = \
+                self.frame1.world2frame(self.frame0.frame2world(self.xframe0))
+        self.frames = [self.frame0, self.frame1]
         self.dim=2
     def eval(self):
         C    = (self.frame0.frame2world(self.xframe0) -
                 self.frame1.frame2world(self.xframe1))
         if length_(C) > 1e-3:
-            print("pin C=", C)
+            print("pin {}: C = {}".format(self.name, C))
             raise ValueError
         Cdot = (self.frame0.frame2worldv(self.xframe0) -
                 self.frame1.frame2worldv(self.xframe1))
@@ -118,8 +123,8 @@ class Pin(Constraint):
             # draw force
             if (drawForces):
                 pen.setWidth(0.1)
-                force = [self.forces[0][0,0]/DrawForceScale,
-                         self.forces[0][1,0]/DrawForceScale]
+                force = [self.forces[0].A1[0]/DrawForceScale,
+                         self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo0[0],
                               xo0[1],
                               xo0[0]+force[0],
@@ -144,7 +149,7 @@ class Rod(Constraint):
         if length_(C) > 1e-3:
             print("rod error:  ")
             print("  name=", self.name, "rodC=", C, "xvec=", xvec.T)
-            #raise ValueError
+            raise ValueError
         Cdot = 2*xvec.T*vvec
         j    = [-2*np.hstack([xvec[0],
                            xvec[1],
@@ -177,14 +182,14 @@ class Rod(Constraint):
             # draw force
             if (drawForces):
                 pen.setWidth(0.1)
-                force = [self.forces[0][0,0]/DrawForceScale,
-                         self.forces[0][1,0]/DrawForceScale]
+                force = [self.forces[0].A1[0]/DrawForceScale,
+                         self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo0[0],
                               xo0[1],
                               xo0[0]+force[0],
                               xo0[1]+force[1], pen)
-                force = [self.forces[1][0,0]/DrawForceScale,
-                         self.forces[1][1,0]/DrawForceScale]
+                force = [self.forces[1].A1[0]/DrawForceScale,
+                         self.forces[1].A1[1]/DrawForceScale]
                 scene.addLine(xo1[0],
                               xo1[1],
                               xo1[0]+force[0],

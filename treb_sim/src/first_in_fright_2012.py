@@ -3,6 +3,7 @@
 
 import dynamics.simulation
 from dynamics.frame import Frame
+from dynamics.spring import NailSpring
 from dynamics.object import Rectangle, Circle, Beam
 from dynamics.constraint import Nail, Rod, Pin, Shelf
 from dynamics.animation import Animation
@@ -40,7 +41,7 @@ def treb( sling_length = 8.54665,    # sling length, feet
           connector_in2 = pi*(2.0/2.0)**2, # cross section, sq inches
           ramp_weight = 400, # pounds
           pumpkin_weight = 10.0,     # pounds
-          sim_duration = 3.0,  # seconds
+          sim_duration = 2.0,  # seconds
           release_angle = 40,  # pumpkin release angle, degrees above horizon
           dry_fire = False,    # True to disable sling from time 0
           time_step = 0.001,   # seconds
@@ -186,6 +187,31 @@ def treb( sling_length = 8.54665,    # sling length, feet
         print("rest_connection=", meter2foot(rest_connection_pos))
         print("rest_short_arm=", meter2foot(rest_short_arm_end))
         print("rest_long_arm=", meter2foot(rest_long_arm_end))
+        
+    ### Machine frame origin is at axle
+    sim.machineFrame=Frame(sim, "machine", theta=0, origin=(0,0))
+    sim.machineFrame.machine=Rectangle(sim.machineFrame,
+                                       l=hanger_pos[0]+2.0,
+                                       w=-slide_y+1.0,
+                                       theta=0,
+                                       origin=(hanger_pos[0]/2,
+                                               (slide_y)/2),
+                                       mass=lb2kgram(5000),
+                                       color=(0,0,0))
+    front_foot_pos = (hanger_pos[0], slide_y-0.5)
+    rear_foot_pos = (0, slide_y - 0.5)
+    sim.machineFrame.rear_foot=Rectangle(sim.machineFrame,
+                                         l=0.3,
+                                         w=0.1,
+                                         origin=rear_foot_pos,
+                                         mass=0,
+                                         color=(0,0,0))
+    sim.machineFrame.front_foot=Rectangle(sim.machineFrame,
+                                         l=0.3,
+                                         w=0.1,
+                                         origin=front_foot_pos,
+                                         mass=0,
+                                         color=(0,0,0))
 
     ### Arm frame origin is at axle.  Framespace has long arm horizontal to the left
     sim.armFrame=Frame(sim, "arm", theta=alpha, origin=(0,0))
@@ -262,20 +288,31 @@ def treb( sling_length = 8.54665,    # sling length, feet
         frame.init()
 
     # define constraints
-    sim.axle = Nail(sim, "axle",
-                             obj=sim.armFrame.long_arm,
-                             xobj=(0, 0),
-                             xworld=(0.0, 0.0))
+    sim.rear_foot = Nail(sim, "rear foot",
+                         obj=sim.machineFrame.rear_foot,
+                         xobj=(0,0),
+                         xworld=rear_foot_pos)
 
-    sim.hinge =Nail(sim, "hinge",
-                              obj=sim.rampFrame.ramp,
-                              xobj=(-ramp_length/2, 0.0),
-                              xworld=hinge_pos)
+    sim.front_foot = NailSpring(sim, "front foot",
+                         obj=sim.machineFrame.front_foot,
+                         xobj=(0,0),
+                         xworld=front_foot_pos,
+                         spring_constant=1e6)
 
-    sim.hanger = Nail(sim, "hanger",
-                               obj=sim.upperLinkFrame.link,
-                               xobj=(-upper_link_length/2.0,0.0),
-                               xworld=hanger_pos)
+    sim.axle = Pin(sim, "axle",
+                             obj0=sim.armFrame.long_arm,
+                             xobj0=(0, 0),
+                             obj1=sim.machineFrame)
+
+    sim.hinge =Pin(sim, "hinge",
+                              obj0=sim.rampFrame.ramp,
+                              xobj0=(-ramp_length/2, 0.0),
+                              obj1=sim.machineFrame)
+
+    sim.hanger = Pin(sim, "hanger",
+                               obj0=sim.upperLinkFrame.link,
+                               xobj0=(-upper_link_length/2.0,0.0),
+                               obj1=sim.machineFrame)
 
     sim.linkPin = Pin(sim, "linkPin",
                                obj0=sim.upperLinkFrame.link,
@@ -381,8 +418,8 @@ def continue_sim(sim, t, y):
 def dist(Y):
     if (len(Y.shape)==1):
         Y = Y.reshape([1,len(Y)])
-    vx = Y[:,33]
-    vy = Y[:,34]
+    vx = Y[:,39]
+    vy = Y[:,40]
     tof = 2.0 * vy / constants.g
     tof[tof<0.0] = 0.0
     return (tof*vx)
