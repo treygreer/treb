@@ -1,35 +1,42 @@
+'''animation:  animate a simulation in a PyQt4 widget'''
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from dynamics.constants import meter2foot
 import numpy as np
 
 class EnergyBar(QtGui.QWidget):
+    '''widget to display potential, kinetic, and dissipated energies'''
     def __init__(self, sim, frame):
         super().__init__()
         self.sim, self.frame = sim, frame
-    def sizeHint(self):
+    def sizeHint(self): #IGNORE:invalid-name
+        '''return minimum size for widget'''
         return QtCore.QSize(400,20)
-    def paintEvent(self, event):
+    def paintEvent(self, _): #IGNORE:invalid-name
+        '''paint widget'''
         painter = QtGui.QPainter()
         painter.begin(self)
         # clear background
-        w,h = self.size().width(), self.size().height()
+        width,height = self.size().width(), self.size().height()
         painter.setBrush(QtGui.QBrush(QtGui.QColor(190,190,190)))
-        painter.drawRect(0, 0, w, h)
+        painter.drawRect(0, 0, width, height)
 
         # draw potential energy bar
         potential_fraction = float((self.frame.PE() - self.frame.PEmin) /
                                      self.sim.total_energy)
         painter.setBrush(QtGui.QBrush(QtGui.QColor(25,255,25)))
-        painter.drawRect(0, 0, int(w*potential_fraction), h)
+        painter.drawRect(0, 0, int(width*potential_fraction), height)
 
         # draw kinetic energy bar
         kinetic_fraction = float(self.frame.KE() / self.sim.total_energy)
         painter.setBrush(QtGui.QBrush(QtGui.QColor(255,25,25)))
-        painter.drawRect(w*potential_fraction, 0, int(w*kinetic_fraction), h)
+        painter.drawRect(width*potential_fraction, 0,
+                         int(width*kinetic_fraction), height)
         painter.end()
 
 class EnergiesBox(QtGui.QGroupBox):
+    '''box of energy bars, one per frame and spring'''
     def __init__(self, sim):
         super().__init__('Energies')
         grid = QtGui.QGridLayout()
@@ -44,6 +51,7 @@ class EnergiesBox(QtGui.QGroupBox):
         self.setLayout(grid)
 
 class RangeBox(QtGui.QGroupBox):
+    '''display scalar value'''
     def __init__(self, max_range):
         super().__init__('Range')
         self.range_bar = QtGui.QProgressBar()
@@ -54,6 +62,7 @@ class RangeBox(QtGui.QGroupBox):
         hbox.addWidget(self.range_bar)
         self.setLayout(hbox)
     def set_range(self, range_):
+        '''set value'''
         self.range_bar.setValue(int(range_))
         self.text_box.setText("%g feet" % (meter2foot(range_)))
 
@@ -66,7 +75,7 @@ class TimeSlider(QtGui.QHBoxLayout):
         self.addWidget(self._text)
         self._slider = QtGui.QSlider(Qt.Horizontal)
         self.addWidget(self._slider)
-        self._slider.setRange(0, sim.Y.shape[0])
+        self._slider.setRange(0, sim.Y.shape[0]-1)
         self._slider.setValue(0)
         self._slider.setPageStep(sim.Y.shape[0]/100)
         self._slider.setSingleStep(1)
@@ -91,7 +100,7 @@ class Animation(QtGui.QWidget):
         draw_forces_button = QtGui.QCheckBox("Draw Force Vectors")
         self.drawing=Drawing(self.time_slider, draw_forces_button, sim)
         energies_box = EnergiesBox(sim)
-        self.range_box = RangeBox(np.max(self.dist(self.sim.Y)))
+        self.range_box = RangeBox(np.max(self.dist(self.sim, self.sim.Y)))
 
         vbox.addWidget(self.drawing)
         vbox.addLayout(self.time_slider)
@@ -112,15 +121,15 @@ class Animation(QtGui.QWidget):
             constraint.enabled = self.sim.constraints_enabled[time_idx,c_idx]
             c_idx=c_idx+1
         self.sim.time_idx = time_idx
-        self.sim._deriv(time_idx * self.sim.time_step, self.sim.Y[time_idx])
+        self.sim.deriv(time_idx * self.sim.time_step, self.sim.Y[time_idx])
 
     def update(self):
-        # set the simulation state
+        '''set the simulation state and update the widget'''
         time = self.time_slider.time
         time_idx = round(time/self.sim.time_step)
         time_idx = min(self.sim.num_steps-1, time_idx)
         self.set_sim_state(time_idx)
-        self.range_box.set_range(self.dist(self.sim.Y[time_idx]))
+        self.range_box.set_range(self.dist(self.sim, self.sim.Y[time_idx]))
         self.drawing.update()
         super().update()
 
@@ -137,7 +146,7 @@ class Drawing(QtGui.QGraphicsView):
         self.setTransformationAnchor(self.AnchorUnderMouse)
         self.setTransform(QtGui.QTransform.fromScale(1.0, -1.0))
         self.sim.time_idx = 0
-        self.scene.setSceneRect(-10.0, -3.0,
+        self.scene.setSceneRect(-10.0, -5.0,
                                 20.0, 20.0) # in drawing units
         self.scale(32.0,32.0)
     def sizeHint(self):
@@ -156,4 +165,7 @@ class Drawing(QtGui.QGraphicsView):
         for constraint in self.sim.constraints:
             constraint.draw(self.scene,
                             self.draw_forces_button.isChecked())
+        for spring in self.sim.springs:
+            spring.draw(self.scene,
+                        self.draw_forces_button.isChecked())
         super().update()
