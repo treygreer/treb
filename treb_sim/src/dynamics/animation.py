@@ -75,7 +75,7 @@ class TimeSlider(QtGui.QHBoxLayout):
         self.addWidget(self._text)
         self._slider = QtGui.QSlider(Qt.Horizontal)
         self.addWidget(self._slider)
-        self._slider.setRange(0, sim.Y.shape[0])
+        self._slider.setRange(0, sim.Y.shape[0]-1)
         self._slider.setValue(0)
         self._slider.setPageStep(sim.Y.shape[0]/100)
         self._slider.setSingleStep(1)
@@ -100,7 +100,7 @@ class Animation(QtGui.QWidget):
         draw_forces_button = QtGui.QCheckBox("Draw Force Vectors")
         self.drawing=Drawing(self.time_slider, draw_forces_button, sim)
         energies_box = EnergiesBox(sim)
-        self.range_box = RangeBox(np.max(self.dist(self.sim.Y)))
+        self.range_box = RangeBox(np.max(self.dist(self.sim, self.sim.Y)))
 
         vbox.addWidget(self.drawing)
         vbox.addLayout(self.time_slider)
@@ -129,7 +129,7 @@ class Animation(QtGui.QWidget):
         time_idx = round(time/self.sim.time_step)
         time_idx = min(self.sim.num_steps-1, time_idx)
         self.set_sim_state(time_idx)
-        self.range_box.set_range(self.dist(self.sim.Y[time_idx]))
+        self.range_box.set_range(self.dist(self.sim, self.sim.Y[time_idx]))
         self.drawing.update()
         super().update()
 

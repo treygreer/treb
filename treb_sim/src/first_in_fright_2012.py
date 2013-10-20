@@ -13,11 +13,14 @@ from dynamics.misc import length_, rot2radians, radians2rot
 from dynamics.constants import lb2kgram, kgram2lb, newton2lb
 from dynamics.constants import pine_density, steel_density
 
+from flight import Flight
+
 import scipy
+import scipy.interpolate
 import numpy as np
 from math import pi, sin, cos, sqrt, acos, atan2
 #from scipy.optimize.optimize import fmin
-#from scipy.optimize.minpack import fsolve
+from scipy.optimize.minpack import fsolve
 #from scipy.interpolate.fitpack2 import UnivariateSpline
 from pylab import plot
 
@@ -32,22 +35,26 @@ def treb( sling_length = 8.54665,    # sling length, feet
           alpha=90,             # arm start angle, ccw from horizontal (degrees)
           omega=10,             # cocked angle between upper link and lower link
           cw_drop = 5.0,        # feet
-          cw_weight = 4000.0,   # pounds
-          short_arm_weight = 70.0, # pounds
-          upper_link_in2 = 2*6.0,  # cross section, sq inches
-          lower_link_in2 = 2*6.0,  # cross section, sq inches
-          connector_in2 = pi*(2.0/2.0)**2, # cross section, sq inches
-          ramp_weight = 400, # pounds
+          cw_weight = 4581.,     # pounds
+          cw_moment_arm = 10.41, # distance from hinge to cw center of gravity, feet
+          cw_moment = 3.516e6,   # counterweight moment about its CG, lb*ft^2
+          upper_link_weight = 2*58.,  # pounds
+          lower_link_weight = 2*52.,  # pounds
+          link_axle_weight = 106,     # pounds
+          connector_rod_weight = 84.8,  # pounds
+          connector_brace_weight = 105,  # pounds
           pumpkin_weight = 10.0,     # pounds
+          sling_weight = 1.7,        # pounds
           sim_duration = 2.0,  # seconds
-          release_angle = 40,  # pumpkin release angle, degrees above horizon
-          dry_fire = False,    # True to disable sling from time 0
+          dry_fire = False,    # True to disable sling from time 0 
           time_step = 0.001,   # seconds
           slide_y = -9,        # feet
-          arm_depth = (10.+1./4.)/12.,
-          arm_thick = (5.+1./4.)/12.,
-          arm_end_depth = (6.+5./8)/12.,
-          arm_end_thick = (3.+1./8)/12.,
+          arm_depth = (10.+1./4.)/12.,  # inches
+          arm_thick = (5.+1./4.)/12.,   # inches
+          arm_end_depth = (6.+5./8)/12.,# inches
+          arm_end_thick = (3.+1./8)/12.,# inches
+          release_pin_weight = 9, # pounds
+          release_time = 0.0, #seconds
           debug = True):
 
     sim = dynamics.simulation.Simulation(max_time=sim_duration,
@@ -67,21 +74,25 @@ def treb( sling_length = 8.54665,    # sling length, feet
     arm_end_thick = foot2meter(arm_end_thick)
     ramp_length = foot2meter(ramp_length)
     link_sum = foot2meter(link_sum)
-    sim.release_angle = scipy.deg2rad(release_angle)
-    del release_angle
+    sim.release_time = release_time
     alpha = scipy.deg2rad(alpha)
     omega = scipy.deg2rad(omega)
     cw_drop = foot2meter(cw_drop)
     cw_mass = lb2kgram(cw_weight)
-    ramp_mass = lb2kgram(ramp_weight)
-    short_arm_mass = lb2kgram(short_arm_weight)
-    connector_m2 = connector_in2 * inch2meter(1)**2
-    upper_link_m2 = upper_link_in2 * inch2meter(1)**2
-    lower_link_m2 = lower_link_in2 * inch2meter(1)**2
+    cw_moment_arm = foot2meter(cw_moment_arm)
+    cw_moment = cw_moment / 32.174049 * 0.00029263965 # convert lb to slug, then
+               # slug*in^2  to  kgram*meter^2
+    connector_rod_mass = lb2kgram(connector_rod_weight)
+    connector_brace_mass = lb2kgram(connector_brace_weight)
+    upper_link_mass = lb2kgram(upper_link_weight)
+    lower_link_mass = lb2kgram(lower_link_weight)
+    link_axle_mass = lb2kgram(link_axle_weight)
     pumpkin_mass = lb2kgram(pumpkin_weight)
+    sling_mass = lb2kgram(sling_weight)
+    release_pin_mass = lb2kgram(release_pin_weight)
 
     # long arm length to reach slide
-    long_arm_length = -slide_y / np.sin(alpha)
+    long_arm_length = -slide_y / np.sin(alpha) - inch2meter(0)
 
     # compute rest cw position thru triangulation
     rest_cw_ctr = circle_intersection(hanger_pos, link_sum,
@@ -216,68 +227,90 @@ def treb( sling_length = 8.54665,    # sling length, feet
                        x1=0,         d1=arm_depth,     t1=arm_thick,
                        density=pine_density,
                        color=(0.8,0.3,0))
-    sim.armFrame.short_arm=Rectangle(sim.armFrame,
-                                     l=short_arm_length,
-                                     w=inch2meter(8),
+    sim.armFrame.short_arm=dynamics.object.Rectangle(sim.armFrame,
+                                     l=inch2meter(18.99),
+                                     w=inch2meter(8.0),
                                      theta=-beta,
-                                     origin=(-short_arm_length/2*cos(beta),
-                                             short_arm_length/2*sin(beta)),
-                                     mass=short_arm_mass,
+                                     origin=(-inch2meter(15.0)*cos(beta),
+                                              inch2meter(15.0)*sin(beta)),
+                                     mass=lb2kgram(53),
                                      color=(0.8,0.3,0))
+    sim.armFrame.connector_pin=dynamics.object.Circle(sim.armFrame,
+                                               radius=inch2meter(2.0),
+                                               origin=(-short_arm_length*cos(beta),
+                                                        short_arm_length*sin(beta)),
+                                               mass=lb2kgram(1),
+                                               color=(0.8,0.3,0))
+    sim.armFrame.long_arm_plate=dynamics.object.Rectangle(sim.armFrame,
+                                                   l=inch2meter(27.5),
+                                                   w=inch2meter(8.0),
+                                                   theta=0.0,
+                                                   origin=(inch2meter(-6.25), 0),
+                                                   mass=lb2kgram(63),
+                                     color=(0.8,0.3,0))
+    sim.armFrame.release_pin=dynamics.object.Circle(sim.armFrame,
+                                             radius=inch2meter(6),
+                                             origin=(-long_arm_length, 0),
+                                             mass=release_pin_mass, color=(1.0, 1.0, 1.0))
 
-    # Ramp frame origin is at pivot point, ramp horizontal to the right
+    # Wdight frame origin is at pivot point, ramp horizontal to the right
     cocked_ramp_angle = rot2radians(cocked_cw_ctr-hinge_pos)
-    sim.rampFrame=Frame(sim, "ramp", theta=cocked_ramp_angle, origin=hinge_pos)
-    sim.rampFrame.ramp = Rectangle(sim.rampFrame, l=ramp_length, w=inch2meter(4),
-                                            mass=ramp_mass, color=(0.3,0.5,0.2),
+    sim.weightFrame=dynamics.frame.Frame(sim, "weight", theta=cocked_ramp_angle, origin=hinge_pos)
+    sim.weightFrame.ramp = dynamics.object.Rectangle(sim.weightFrame, l=ramp_length, w=inch2meter(4),
+                                            mass=0, color=(0.3,0.5,0.2),
                                             origin = (ramp_length/2,0))
-    sim.rampFrame.cw = Rectangle(sim.rampFrame, l=foot2meter(2.6), w=foot2meter(2.6),
-                                   mass=cw_mass, color=(0.3,0.5,0.2),
-                                   origin = (ramp_length,0))
+    sim.weightFrame.cw = dynamics.object.Rectangle(sim.weightFrame, l=foot2meter(2.6), w=foot2meter(2.6),
+                                            color=(0.3,0.5,0.2),
+                                            mass=cw_mass,
+                                            origin = (cw_moment_arm,0),
+                                            moment = cw_moment)
 
     # Lower link frame origin is at end of ramp
-    lower_link_mass = lower_link_length * lower_link_m2 * steel_density
-    sim.lowerLinkFrame = Frame(sim, "lowerLink", origin=cocked_cw_ctr,
+    sim.lowerLinkFrame = dynamics.frame.Frame(sim, "lower link", origin=cocked_cw_ctr,
                                         theta = cocked_lower_link_angle-pi)
-    sim.lowerLinkFrame.link = Rectangle(sim.lowerLinkFrame, l=lower_link_length, w=inch2meter(6),
+    sim.lowerLinkFrame.link = dynamics.object.Rectangle(sim.lowerLinkFrame, l=lower_link_length, w=inch2meter(6),
                                                  mass=lower_link_mass, color=(1.0,0.0,0.0),
                                                  origin=(lower_link_length/2, 0.0))
+    sim.lowerLinkFrame.axle=dynamics.object.Circle(sim.lowerLinkFrame,
+                                            radius=inch2meter(3),
+                                            origin=(lower_link_length, 0.0),
+                                            mass=link_axle_mass, color=(1.0, 0.0, 0.0))
 
     # Upper link frame origin is the hanger
     cocked_upper_link_angle = rot2radians(cocked_connection_pos-hanger_pos)
-    upper_link_mass = upper_link_length * upper_link_m2 * steel_density
-    sim.upperLinkFrame = Frame(sim, "upperLink", origin=hanger_pos,
+    sim.upperLinkFrame = dynamics.frame.Frame(sim, "upper link", origin=hanger_pos,
                                         theta = cocked_upper_link_angle)
-    sim.upperLinkFrame.link = Rectangle(sim.upperLinkFrame, l=upper_link_length, w=inch2meter(6),
+    sim.upperLinkFrame.link = dynamics.object.Rectangle(sim.upperLinkFrame, l=upper_link_length, w=inch2meter(6),
                                                  mass=upper_link_mass, color=(1.0,0.0,0.0),
                                                  origin=(upper_link_length/2, 0.0))
 
     # Connector frame origin is the end of the short arm
-    connector_mass = connector_length * connector_m2 * steel_density
-    sim.connectorFrame = Frame(sim, "connector", origin=cocked_short_arm_end,
+    sim.connectorFrame = dynamics.frame.Frame(sim, "connector", origin=cocked_short_arm_end,
                                         theta = rot2radians(cocked_connection_pos - cocked_short_arm_end))
-    sim.connectorFrame.connector = Rectangle(sim.connectorFrame, l=connector_length,
+    sim.connectorFrame.rod = dynamics.object.Rectangle(sim.connectorFrame, l=connector_length,
                                                       w=inch2meter(2),
-                                                      mass=connector_mass,
+                                                      mass=connector_rod_mass,
                                                       color=(0.0, 0.0, 0.0),
                                                       origin=(connector_length/2, 0.0))
-    sim.connectorFrame.crossbeam = Rectangle(sim.connectorFrame,
-                                                      l=connector_length/3.0, w=inch2meter(4),
-                                                      mass=lb2kgram(200), color=(0.0, 0.0, 0.0),
-                                                      origin=(connector_length*5./6., 0.0))
+    sim.connectorFrame.stiffener = dynamics.object.Rectangle(sim.connectorFrame, l=connector_length,
+                                                      w=inch2meter(4.0),
+                                                      mass=lb2kgram(100),
+                                                      color=(0.0, 0.0, 0.0),
+                                                      origin=(connector_length/2, inch2meter(3.0)))
+    sim.connectorFrame.brace = dynamics.object.Rectangle(sim.connectorFrame, l=foot2meter(2),
+                                                       w=inch2meter(4),
+                                                       mass=connector_brace_mass,
+                                                       color=(0.0, 0.0, 0.0),
+                                                       origin=(connector_length-foot2meter(1), 0.0))
 
-
-    if (debug):
-        print("connector weight = %g pounds" % kgram2lb(connector_mass))
-        print("lower link weight = %g pounds" % kgram2lb(lower_link_mass))
-        print("upper link weight = %g pounds" % kgram2lb(upper_link_mass))
-    
     # Pumpkin
-    sim.pumpkinFrame=Frame(sim, "pumpkin", origin=pumpkin_ctr)
-    sim.pumpkinFrame.pumpkin=Circle(sim.pumpkinFrame,
+    sim.pumpkinFrame=dynamics.frame.Frame(sim, "pumpkin", origin=pumpkin_ctr)
+    sim.pumpkinFrame.pumpkin=dynamics.object.Circle(sim.pumpkinFrame,
                                              radius=pumpkin_diameter/2.0,
-                                             mass=pumpkin_mass,
-                                             color=(1.0, 0.5, 0))
+                                             mass=pumpkin_mass, color=(1.0, 0.5, 0))
+    sim.pumpkinFrame.sling=dynamics.object.Circle(sim.pumpkinFrame,
+                                             radius=pumpkin_diameter/2.0,
+                                             mass=sling_mass, color=(1.0, 0.5, 0))
 
     # initialize frames
     for frame in sim.frames:
@@ -294,7 +327,7 @@ def treb( sling_length = 8.54665,    # sling length, feet
                          xobj=(0,0),
                          x_world=front_foot_pos,
                          spring_constant=1e6,
-                         damping_constant=450e3)
+                         damping_constant=500e3)
 
     sim.axle = Pin(sim, "axle",
                              obj0=sim.armFrame.long_arm,
@@ -302,7 +335,7 @@ def treb( sling_length = 8.54665,    # sling length, feet
                              obj1=sim.machineFrame)
 
     sim.hinge =Pin(sim, "hinge",
-                              obj0=sim.rampFrame.ramp,
+                              obj0=sim.weightFrame.ramp,
                               xobj0=(-ramp_length/2, 0.0),
                               obj1=sim.machineFrame)
 
@@ -317,22 +350,22 @@ def treb( sling_length = 8.54665,    # sling length, feet
                                obj1=sim.lowerLinkFrame.link,
                                xobj1 = (lower_link_length/2.0, 0.0))
 
-    sim.rampPin = Pin(sim, "rampPin",
-                               obj0=sim.rampFrame.ramp,
+    sim.rampPin = dynamics.constraint.Pin(sim, "rampPin",
+                               obj0=sim.weightFrame.ramp,
                                xobj0= (ramp_length/2.0, 0.0),
                                obj1=sim.lowerLinkFrame.link,
                                xobj1 = (-lower_link_length/2.0, 0.0))
 
     sim.connectorPin1 = Pin(sim, "connectorPin1",
-                                     obj0=sim.armFrame.short_arm,
-                                     xobj0=(-short_arm_length/2.0,0.0),
-                                     obj1=sim.connectorFrame.connector,
+                                     obj0=sim.armFrame.connector_pin,
+                                     xobj0=(0.0,0.0),
+                                     obj1=sim.connectorFrame.rod,
                                      xobj1 = (-connector_length/2.0, 0.0))
 
     sim.connectorPin2 = Pin(sim, "connectorPin2",
                                      obj0=sim.upperLinkFrame.link,
                                      xobj0=(upper_link_length/2.0,0.0),
-                                     obj1=sim.connectorFrame.connector,
+                                     obj1=sim.connectorFrame.rod,
                                      xobj1 = (connector_length/2.0, 0.0))
 
     sim.sling=Rod(sim, "sling",
@@ -359,23 +392,24 @@ def treb( sling_length = 8.54665,    # sling length, feet
     print( "    running simulation")
     from time import clock
     tstart=clock()
-    sim.distance=0
-    sim.trelease=0
     sim.run(continue_sim, debug=debug)
     print ("    done: time=%g sec" % (clock()-tstart))
 
-    #dist_spline = scipy.interpolate.UnivariateSpline(sim.t, dist(sim.Y), k=3,s=0.0)
-    #d0,t0 = max( (dist,time) for time,dist in zip(sim.t, dist(sim.Y)))
-    #sim.tmax = fsolve(dist_spline, t0, args=1.0)  # root of first derivative of range
-    #sim.maxdist = dist_spline(sim.tmax)
-
-    print("     distance=%g feet at %g sec" % (meter2foot(sim.distance), sim.trelease))
+    if not sim.release_time:
+        sim.range = Y2range(sim,sim.Y)
+        range_spline = scipy.interpolate.UnivariateSpline(sim.t, sim.range, k=3,s=0.0)
+        d0,t0 = max( (range,time) for range,time in zip(sim.range, sim.t) ) # find guess
+        sim.tmax = fsolve(range_spline, t0, args=1)  # root of first derivative of range
+        sim.maxrange = range_spline(sim.tmax)
+        launchDegrees_spline = scipy.interpolate.UnivariateSpline(sim.t, Y2launchDegrees(sim.Y), k=3,s=0.0)
+        sim.launchDegrees = launchDegrees_spline(sim.tmax)
+        print ("     distance=%g feet at %g sec" % (meter2foot(sim.maxrange), sim.tmax))
+    else:
+        sim.range=np.zeros(len(sim.t))
+        sim.maxrange=0
 
     sim.Fmax = max(sim.hanger.Fvec())
     print("     max force on hanger = %g pounds" % (newton2lb(sim.Fmax)))
-
-    #sim.fall = weight_origin[1] + (short_arm_length + sim.weight_arm)
-    #sim.efficiency = sim.maxdist / (2*sim.fall*sim.weightFrame.mass/sim.pumpkinFrame.mass)
     return(sim)
 
 def circle_intersection(ctr1, rad1, ctr2, rad2):
@@ -405,42 +439,66 @@ def continue_sim(sim, time, y):
         if shelf_force < 0.0:
             sim.slide.enabled = False
 
-    if sim.sling.enabled:
-        v = sim.pumpkinFrame.v
-        angle = atan2(v.A[1], v.A[0])
-        if v.A[0] > 0.0 and v.A[1] > 0.0 and angle <= sim.release_angle:
-            sim.distance = dist(y)
-            sim.trelease = time
-            sim.sling.enabled = False
-            #return False
-    return True
+    if 0:
+        if sim.sling.enabled:
+            v = sim.pumpkinFrame.v
+            angle = atan2(v.A[1], v.A[0])
+            if v.A[0] > 0.0 and v.A[1] > 0.0 and angle <= sim.release_angle:
+                sim.maxrange = Y2range(sim,y)[0]
+                sim.sling.enabled = False
+                #return False
+        return True
+    else:
+        if sim.release_time:
+            if time >= sim.release_time:
+                sim.sling.enabled = False
+            return True
+        if sim.armFrame.theta >= -3*pi/4:
+            return True
+        if sim.pumpkinFrame.v.A1[1] > 0:
+            return True
+        return False
 
-
-#    if sim.armFrame.theta >= -3*pi/4:
-#        return True
-#    if sim.pumpkinFrame.v.A1[1] > 0:
-#        return True
-#    return False
-
-def dist(Y):
+def Y2range(sim, Y, with_air_friction=True):
     if (len(Y.shape)==1):
         Y = Y.reshape([1,len(Y)])
-    vx = Y[:,39]
-    vy = Y[:,40]
-    tof = 2.0 * vy / scipy.constants.g
-    tof[tof<0.0] = 0.0
-    return (tof*vx)
+    idx = sim.pumpkinFrame.idx
+    x0 = Y[:,6*idx]
+    y0 = Y[:,6*idx+1]
+    vx0 = Y[:,6*idx+3]
+    vy0 = Y[:,6*idx+4]
+    
+    if not with_air_friction:
+        tof = 2.0 * vy0 / scipy.constants.g
+        tof[tof<0.0] = 0.0
+        return (tof*vx0)
+    else:        
+        range = np.zeros(len(x0))
+        flight = Flight(mass=sim.pumpkinFrame.pumpkin.mass,
+                        area=pi*sim.pumpkinFrame.pumpkin.radius**2)
+        for i in np.arange(len(x0)):
+            if (vy0[i] > 0) & (vx0[i] > 0):
+                flight.run([x0[i],y0[i]], [vx0[i],vy0[i]])
+                range[i] = flight.range()
+        return range
+
+def Y2launchDegrees(Y):
+    if (len(Y.shape)==1):
+        Y = Y.reshape([1,len(Y)])
+    vx = Y[:,33]
+    vy = Y[:,34]
+    return (180./pi*np.arctan2(vy, vx))
 
 
 def trebPEvec(sim):
-    return (sim.rampFrame.PEvec() +
+    return (sim.weightFrame.PEvec() +
             sim.upperLinkFrame.PEvec() +
             sim.lowerLinkFrame.PEvec() +
             sim.connectorFrame.PEvec() +
             sim.armFrame.PEvec())
 
 def trebKEvec(sim):
-    return (sim.rampFrame.KEvec() +
+    return (sim.weightFrame.KEvec() +
             sim.upperLinkFrame.KEvec() +
             sim.lowerLinkFrame.KEvec() +
             sim.connectorFrame.KEvec() +
@@ -453,16 +511,17 @@ def plotEnergies(sim):
                   trebKEvec(sim)))
     plot (sim.t, trebKEvec(sim))
     plot (sim.t, sim.pumpkinFrame.KEvec() + sim.pumpkinFrame.PEvec())
+    
 
 def opt(X):
     global sim, X0
-    X0 = X
-    print( "X=", X)
+    X0 = X 
+    print ("X=", X)
     try:
         sim = treb(debug=False, time_step=0.0001, sim_duration=0.7,
                    sling_length=X[0], link_sum=X[1], hanger_x=X[2], slide_y=-9)
-        #return -sim.distance
-        return -sim.distance / sim.Fmax**0.10
+        #return -sim.maxrange
+        return -sim.maxrange / sim.Fmax**0.10
 
     except KeyboardInterrupt:
         raise KeyboardInterrupt
@@ -481,9 +540,8 @@ X0 = np.array([8.54665,   5.587,    11.38508])
 #upper =  array([ 12.0,     9.0,      12.0])
 #result=scipy.optimize.fmin(opt, X0)
 #result=scipy.optimize.fmin_l_bfgs_b(opt, X0, approx_grad=True, bounds=None)
-#result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001,
-#                             feps=1e-60, full_output=True)
+#result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001, feps=1e-60, full_output=True)
 
 if __name__ == '__main__':
     sim=treb(debug=True)
-    anim=Animation(sim, dist)
+    anim=Animation(sim, Y2range)
