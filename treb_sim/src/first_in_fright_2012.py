@@ -14,9 +14,8 @@ from dynamics.constants import lb2kgram, kgram2lb, newton2lb
 from dynamics.constants import pine_density, steel_density
 
 import scipy
-from scipy import constants
-from numpy import pi, sqrt, array, sin, cos, arccos, arctan2
-from scipy import deg2rad, rad2deg
+import numpy as np
+from math import pi, sin, cos, sqrt, acos, atan2
 #from scipy.optimize.optimize import fmin
 #from scipy.optimize.minpack import fsolve
 #from scipy.interpolate.fitpack2 import UnivariateSpline
@@ -34,7 +33,6 @@ def treb( sling_length = 8.54665,    # sling length, feet
           omega=10,             # cocked angle between upper link and lower link
           cw_drop = 5.0,        # feet
           cw_weight = 4000.0,   # pounds
-          long_arm_weight9 = 70, # weight at nominal 9 foot length, pounds
           short_arm_weight = 70.0, # pounds
           upper_link_in2 = 2*6.0,  # cross section, sq inches
           lower_link_in2 = 2*6.0,  # cross section, sq inches
@@ -58,9 +56,9 @@ def treb( sling_length = 8.54665,    # sling length, feet
 
     # convert arguments to metric and radians
     sling_length = foot2meter(sling_length)
-    hanger_pos = foot2meter(array((hanger_x, hanger_y)))
+    hanger_pos = foot2meter(np.array((hanger_x, hanger_y)))
     del hanger_x, hanger_y
-    hinge_pos = foot2meter(array((hinge_x, hinge_y)))
+    hinge_pos = foot2meter(np.array((hinge_x, hinge_y)))
     del hinge_x, hinge_y
     slide_y = foot2meter(slide_y)
     arm_depth = foot2meter(arm_depth)
@@ -69,14 +67,13 @@ def treb( sling_length = 8.54665,    # sling length, feet
     arm_end_thick = foot2meter(arm_end_thick)
     ramp_length = foot2meter(ramp_length)
     link_sum = foot2meter(link_sum)
-    sim.release_angle = deg2rad(release_angle)
+    sim.release_angle = scipy.deg2rad(release_angle)
     del release_angle
-    alpha = deg2rad(alpha)
-    omega = deg2rad(omega)
+    alpha = scipy.deg2rad(alpha)
+    omega = scipy.deg2rad(omega)
     cw_drop = foot2meter(cw_drop)
     cw_mass = lb2kgram(cw_weight)
     ramp_mass = lb2kgram(ramp_weight)
-    #long_arm_mass9 = lb2kgram(long_arm_weight9)
     short_arm_mass = lb2kgram(short_arm_weight)
     connector_m2 = connector_in2 * inch2meter(1)**2
     upper_link_m2 = upper_link_in2 * inch2meter(1)**2
@@ -84,15 +81,14 @@ def treb( sling_length = 8.54665,    # sling length, feet
     pumpkin_mass = lb2kgram(pumpkin_weight)
 
     # long arm length to reach slide
-    long_arm_length = -slide_y / sin(alpha)
-    #long_arm_mass = long_arm_mass9 * meter2foot(long_arm_length)/9
+    long_arm_length = -slide_y / np.sin(alpha)
 
     # compute rest cw position thru triangulation
     rest_cw_ctr = circle_intersection(hanger_pos, link_sum,
                                       hinge_pos, ramp_length)
 
     # compute cocked cw position on circle about hinge, up 'drop' meters from rest position
-    cocked_cw_ctr = array((None, rest_cw_ctr[1] + cw_drop))
+    cocked_cw_ctr = np.array((None, rest_cw_ctr[1] + cw_drop))
     # ramp_length**2 = (x-hinge_x)**2 + (y-hinge_y)**2
     cocked_cw_ctr[0] = hinge_pos[0] + sqrt(ramp_length**2 - (cocked_cw_ctr[1]-hinge_pos[1])**2)
 
@@ -142,7 +138,7 @@ def treb( sling_length = 8.54665,    # sling length, feet
         print ("  ellipse_a=", meter2foot(ellipse_a))
         print ("  ellipse_f=", meter2foot(ellipse_f))
         print ("  ellipse_e=", ellipse_e)
-        print ("  theta=", rad2deg(theta))
+        print ("  theta=", scipy.rad2deg(theta))
         print ("  connector_length=", meter2foot(connector_length))
         print ("  short_arm_length=", meter2foot(short_arm_length))
         print ("  axle_rest_connection_distance=",
@@ -160,7 +156,7 @@ def treb( sling_length = 8.54665,    # sling length, feet
 
     # other dimensions
     pumpkin_diameter = inch2meter(8.0)
-    pumpkin_ctr = cocked_long_arm_end + array((sling_length, 0.0))
+    pumpkin_ctr = cocked_long_arm_end + np.array((sling_length, 0.0))
 
     if debug:
         # rest short arm angle and position (for printing only)
@@ -179,8 +175,8 @@ def treb( sling_length = 8.54665,    # sling length, feet
         print("cocked_cw=", meter2foot(cocked_cw_ctr))
         print("cocked_short_arm=", meter2foot(cocked_short_arm_end))
         print("cocked_long_arm=", meter2foot(cocked_long_arm_end))
-        print("cocked_lower_link_angle=", rad2deg(cocked_lower_link_angle))
-        print("rest_lower_link_angle=", rad2deg(rest_lower_link_angle))
+        print("cocked_lower_link_angle=", scipy.rad2deg(cocked_lower_link_angle))
+        print("rest_lower_link_angle=", scipy.rad2deg(rest_lower_link_angle))
         print("connector_length=", meter2foot(connector_length))
         print("lower_link_length=", meter2foot(lower_link_length))
         print("rest_cw_ctr=", meter2foot(rest_cw_ctr))
@@ -296,8 +292,9 @@ def treb( sling_length = 8.54665,    # sling length, feet
     sim.front_foot = NailSpring(sim, "front foot",
                          obj=sim.machineFrame.front_foot,
                          xobj=(0,0),
-                         xworld=front_foot_pos,
-                         spring_constant=1e6)
+                         x_world=front_foot_pos,
+                         spring_constant=1e6,
+                         damping_constant=450e3)
 
     sim.axle = Pin(sim, "axle",
                              obj0=sim.armFrame.long_arm,
@@ -343,6 +340,13 @@ def treb( sling_length = 8.54665,    # sling length, feet
                                                               0),
                            obj1=sim.pumpkinFrame.pumpkin, xobj1=(0.0,0.0),
                            length=sling_length)
+    '''
+    sim.trigger = Rod(sim, "trigger",
+                               obj0=sim.pumpkinFrame.pumpkin,
+                               xobj0= (0.0, 0.0),
+                               obj1=sim.machineFrame.front_foot,
+                               xobj1= (0.0,0.0))
+    '''
 
     sim.slide=Shelf(sim, "slide",
                              obj=sim.pumpkinFrame.pumpkin,
@@ -384,14 +388,17 @@ def circle_intersection(ctr1, rad1, ctr2, rad2):
 
     base_len = length_(ctr2-ctr1)
     # alpha is angle from vector ctr1->ctr2 to vector ctr1->isect
-    alpha = arccos( (base_len**2 + rad1**2 - rad2**2) / (2 * base_len * rad1) )
+    alpha = acos( (base_len**2 + rad1**2 - rad2**2) / (2 * base_len * rad1) )
     # beta is angle from positive x axis to vector ctr1->ctr2
     beta = rot2radians(ctr2-ctr1)
     isect = ctr1 + rad1*radians2rot(alpha+beta)
     return isect
 
-def continue_sim(sim, t, y):
+def continue_sim(sim, time, y):
     "continue simulation?"
+
+    #if time>0.001:
+    #    sim.trigger.enabled = False
 
     if sim.slide.enabled:
         shelf_force = sim.slide.forces[0][1]
@@ -400,10 +407,10 @@ def continue_sim(sim, t, y):
 
     if sim.sling.enabled:
         v = sim.pumpkinFrame.v
-        angle = arctan2(v.A[1], v.A[0])
+        angle = atan2(v.A[1], v.A[0])
         if v.A[0] > 0.0 and v.A[1] > 0.0 and angle <= sim.release_angle:
             sim.distance = dist(y)
-            sim.trelease = t
+            sim.trelease = time
             sim.sling.enabled = False
             #return False
     return True
@@ -420,7 +427,7 @@ def dist(Y):
         Y = Y.reshape([1,len(Y)])
     vx = Y[:,39]
     vy = Y[:,40]
-    tof = 2.0 * vy / constants.g
+    tof = 2.0 * vy / scipy.constants.g
     tof[tof<0.0] = 0.0
     return (tof*vx)
 
@@ -469,7 +476,7 @@ def opt(X):
 #X0 = array([  8.68625,   6.00475,  10.44   ])
 #X0 = array([  8.21222,   5.58682,  11.43518, -9.0])
 #X0 = array([8.411, 5.587, 11.433])
-X0 = array([8.54665,   5.587,    11.38508])
+X0 = np.array([8.54665,   5.587,    11.38508])
 #lower =  array([ 6.0,      3.0,      5.0])
 #upper =  array([ 12.0,     9.0,      12.0])
 #result=scipy.optimize.fmin(opt, X0)

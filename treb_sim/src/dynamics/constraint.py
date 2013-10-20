@@ -132,7 +132,7 @@ class Pin(Constraint):
 
 class Rod(Constraint):
     def __init__(self, sim, name,
-                 obj0, xobj0, obj1, xobj1, length):
+                 obj0, xobj0, obj1, xobj1, length=None):
         Constraint.__init__(self, sim, name)
         self.frames = [obj0.frame, obj1.frame]
         self.frame0,self.frame1   = obj0.frame, obj1.frame
@@ -145,6 +145,8 @@ class Rod(Constraint):
                  self.frame0.frame2world(self.xframe0))
         vvec =  (self.frame1.frame2worldv(self.xframe1) -
                  self.frame0.frame2worldv(self.xframe0))
+        if self.length is None:
+            self.length = np.sqrt(np.asscalar(xvec.T * xvec))
         C    = xvec.T*xvec - self.length*self.length
         if length_(C) > 1e-3:
             print("rod error:  ")

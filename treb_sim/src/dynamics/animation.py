@@ -165,4 +165,7 @@ class Drawing(QtGui.QGraphicsView):
         for constraint in self.sim.constraints:
             constraint.draw(self.scene,
                             self.draw_forces_button.isChecked())
+        for spring in self.sim.springs:
+            spring.draw(self.scene,
+                        self.draw_forces_button.isChecked())
         super().update()
