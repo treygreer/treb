@@ -253,7 +253,7 @@ def treb( sling_length = 9.3,    # sling length, feet
                                              origin=(-long_arm_length, 0),
                                              mass=release_pin_mass, color=(1.0, 1.0, 1.0))
 
-    # Wdight frame origin is at pivot point, ramp horizontal to the right
+    # Weight frame origin is at pivot point, ramp horizontal to the right
     cocked_ramp_angle = rot2radians(cocked_cw_ctr-hinge_pos)
     sim.weightFrame=dynamics.frame.Frame(sim, "weight", theta=cocked_ramp_angle, origin=hinge_pos)
     sim.weightFrame.ramp = dynamics.object.Rectangle(sim.weightFrame, l=ramp_length, w=inch2meter(4),
