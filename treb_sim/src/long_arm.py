@@ -537,13 +537,15 @@ def opt(X):
 #X0 = array([  8.68625,   6.00475,  10.44   ])
 #X0 = array([  8.21222,   5.58682,  11.43518, -9.0])
 #X0 = array([8.411, 5.587, 11.433])
-X0 = np.array([9.3])
 #lower =  array([ 6.0,      3.0,      5.0])
 #upper =  array([ 12.0,     9.0,      12.0])
-result=scipy.optimize.fmin(opt, X0)
+
 #result=scipy.optimize.fmin_l_bfgs_b(opt, X0, approx_grad=True, bounds=None)
 #result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001, feps=1e-60, full_output=True)
 
+X0 = np.array([13.2])
+#result=scipy.optimize.fmin(opt, X0)
+
 if __name__ == '__main__':
-    sim=treb(debug=True)
+    sim=treb(sling_length=X0[0], debug=True)
     anim=Animation(sim, Y2range)
