@@ -4,22 +4,22 @@
 import dynamics.simulation
 from dynamics.frame import Frame
 from dynamics.spring import NailSpring
-from dynamics.object import Rectangle, Circle, Beam
+from dynamics.object import Rectangle, Beam
 from dynamics.constraint import Nail, Rod, Pin, Shelf
 from dynamics.animation import Animation
 
 from dynamics.constants import foot2meter, inch2meter, meter2foot
 from dynamics.misc import length_, rot2radians, radians2rot
-from dynamics.constants import lb2kgram, kgram2lb, newton2lb
-from dynamics.constants import pine_density, steel_density
+from dynamics.constants import lb2kgram, newton2lb
+from dynamics.constants import pine_density
 
 from flight import Flight
 
-import scipy
 import scipy.interpolate
+import scipy.constants
 import numpy as np
 from math import pi, sin, cos, sqrt, acos, atan2
-from scipy.optimize.optimize import fmin
+# from scipy.optimize.optimize import fmin
 from scipy.optimize.minpack import fsolve
 #from scipy.interpolate.fitpack2 import UnivariateSpline
 from pylab import plot
@@ -80,8 +80,8 @@ def treb( sling_length = 9.3,    # sling length, feet
     cw_drop = foot2meter(cw_drop)
     cw_mass = lb2kgram(cw_weight)
     cw_moment_arm = foot2meter(cw_moment_arm)
-    cw_moment = cw_moment / 32.174049 * 0.00029263965 # convert lb to slug, then
-               # slug*in^2  to  kgram*meter^2
+    cw_moment = cw_moment / 32.174049 * 0.00029263965   # convert lb to slug, then
+                                                        # slug*in^2  to  kgram*meter^2
     connector_rod_mass = lb2kgram(connector_rod_weight)
     connector_brace_mass = lb2kgram(connector_brace_weight)
     upper_link_mass = lb2kgram(upper_link_weight)
@@ -398,7 +398,7 @@ def treb( sling_length = 9.3,    # sling length, feet
     if not sim.release_time:
         sim.range = Y2range(sim,sim.Y)
         range_spline = scipy.interpolate.UnivariateSpline(sim.t, sim.range, k=3,s=0.0)
-        d0,t0 = max( (range,time) for range,time in zip(sim.range, sim.t) ) # find guess
+        _,t0 = max( (range_,time) for range_,time in zip(sim.range, sim.t) ) # find guess
         sim.tmax = fsolve(range_spline, t0, args=1)  # root of first derivative of range
         sim.maxrange = range_spline(sim.tmax)
         launchDegrees_spline = scipy.interpolate.UnivariateSpline(sim.t, Y2launchDegrees(sim.Y), k=3,s=0.0)
@@ -473,14 +473,14 @@ def Y2range(sim, Y, with_air_friction=True):
         tof[tof<0.0] = 0.0
         return (tof*vx0)
     else:        
-        range = np.zeros(len(x0))
+        range_ = np.zeros(len(x0))
         flight = Flight(mass=sim.pumpkinFrame.pumpkin.mass,
                         area=pi*sim.pumpkinFrame.pumpkin.radius**2)
         for i in np.arange(len(x0)):
             if (vy0[i] > 0) & (vx0[i] > 0):
                 flight.run([x0[i],y0[i]], [vx0[i],vy0[i]])
-                range[i] = flight.range()
-        return range
+                range_[i] = flight.range()
+        return range_
 
 def Y2launchDegrees(Y):
     if (len(Y.shape)==1):
