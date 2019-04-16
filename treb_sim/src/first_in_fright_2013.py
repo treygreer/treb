@@ -23,6 +23,8 @@ from scipy.optimize.optimize import fmin
 from scipy.optimize.minpack import fsolve
 #from scipy.interpolate.fitpack2 import UnivariateSpline
 from pylab import plot
+import sys
+from PyQt5.QtWidgets import QApplication
 
 scipy.set_printoptions(precision=5, linewidth=200)
 def treb( sling_length = 9.3,    # sling length, feet
@@ -545,5 +547,6 @@ X0 = np.array([9.3])
 #result=scipy.optimize.anneal(opt, X0, lower=lower, upper=upper, T0=0.001, feps=1e-60, full_output=True)
 
 if __name__ == '__main__':
-    sim=treb(debug=True)
+    sim=treb(release_time=0.661, debug=True)
+    app = QApplication(sys.argv)
     anim=Animation(sim, Y2range)

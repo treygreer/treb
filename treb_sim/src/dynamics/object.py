@@ -4,7 +4,7 @@ import pdb  # @UnusedImport
 import numpy as np
 import math
 from . import misc
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 class Object:
     "object class"

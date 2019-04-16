@@ -1,7 +1,7 @@
 '''springs'''
 
 import numpy as np
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 from .misc import length_
 
 DRAW_FORCE_SCALE = 400e3
@@ -46,7 +46,7 @@ class NailSpring(Spring):
         return np.mat([force_vec[0], force_vec[1], torque]).T
 
     def draw(self, scene, draw_forces):
-        '''draw the spring in a PyQt4 scene'''
+        '''draw the spring in a PyQt5 scene'''
         x_frame = self.frame.frame2world(self.x_frame).A1
         x_world = self.x_world
         pen = QtGui.QPen()

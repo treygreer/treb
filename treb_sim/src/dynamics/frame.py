@@ -2,7 +2,7 @@
 import scipy.constants
 import numpy as np
 from . import misc
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 import pdb
 
 

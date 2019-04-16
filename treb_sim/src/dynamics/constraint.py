@@ -4,7 +4,7 @@ from .misc import length_
 from .object import Object
 from .frame import Frame
 from math import pi
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 DrawForceScale = 400e3
 

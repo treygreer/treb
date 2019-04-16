@@ -1,11 +1,11 @@
-'''animation:  animate a simulation in a PyQt4 widget'''
+'''animation:  animate a simulation in a PyQt5 widget'''
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import Qt
 from dynamics.constants import meter2foot
 import numpy as np
 
-class EnergyBar(QtGui.QWidget):
+class EnergyBar(QtWidgets.QWidget):
     '''widget to display potential, kinetic, and dissipated energies'''
     def __init__(self, sim, frame):
         super().__init__()
@@ -35,14 +35,14 @@ class EnergyBar(QtGui.QWidget):
                          int(width*kinetic_fraction), height)
         painter.end()
 
-class EnergiesBox(QtGui.QGroupBox):
+class EnergiesBox(QtWidgets.QGroupBox):
     '''box of energy bars, one per frame and spring'''
     def __init__(self, sim):
         super().__init__('Energies')
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
         row = 0
         for frame in sim.frames:
-            label = QtGui.QLabel(frame.name)
+            label = QtWidgets.QLabel(frame.name)
             grid.addWidget(label, row, 0)
             label.show()
             frame.energy_bar = EnergyBar(sim, frame)
@@ -50,14 +50,14 @@ class EnergiesBox(QtGui.QGroupBox):
             row=row+1
         self.setLayout(grid)
 
-class RangeBox(QtGui.QGroupBox):
+class RangeBox(QtWidgets.QGroupBox):
     '''display scalar value'''
     def __init__(self, max_range):
         super().__init__('Range')
-        self.range_bar = QtGui.QProgressBar()
+        self.range_bar = QtWidgets.QProgressBar()
         self.range_bar.setRange(0, int(max_range))
-        hbox = QtGui.QHBoxLayout()
-        self.text_box = QtGui.QLabel()
+        hbox = QtWidgets.QHBoxLayout()
+        self.text_box = QtWidgets.QLabel()
         hbox.addWidget(self.text_box)
         hbox.addWidget(self.range_bar)
         self.setLayout(hbox)
@@ -66,14 +66,14 @@ class RangeBox(QtGui.QGroupBox):
         self.range_bar.setValue(int(range_))
         self.text_box.setText("%g feet" % (meter2foot(range_)))
 
-class TimeSlider(QtGui.QHBoxLayout):
+class TimeSlider(QtWidgets.QHBoxLayout):
     timeChanged = QtCore.pyqtSignal()
     def __init__(self, sim):
         self.sim = sim
         super().__init__()
-        self._text = QtGui.QLabel()
+        self._text = QtWidgets.QLabel()
         self.addWidget(self._text)
-        self._slider = QtGui.QSlider(Qt.Horizontal)
+        self._slider = QtWidgets.QSlider(Qt.Horizontal)
         self.addWidget(self._slider)
         self._slider.setRange(0, sim.Y.shape[0]-1)
         self._slider.setValue(0)
@@ -87,7 +87,7 @@ class TimeSlider(QtGui.QHBoxLayout):
     def time(self):
         return self.sim.time_step * self._slider.value()
 
-class Animation(QtGui.QWidget):
+class Animation(QtWidgets.QWidget):
     def __init__(self, sim, dist):
         super().__init__()
         self.sim, self.dist = sim, dist
@@ -95,9 +95,9 @@ class Animation(QtGui.QWidget):
         self.sim.total_energy = sum([frame.KE() + frame.PE() - frame.PEmin
                                       for frame in sim.frames])
 
-        vbox = QtGui.QVBoxLayout()
+        vbox = QtWidgets.QVBoxLayout()
         self.time_slider = TimeSlider(sim)
-        draw_forces_button = QtGui.QCheckBox("Draw Force Vectors")
+        draw_forces_button = QtWidgets.QCheckBox("Draw Force Vectors")
         self.drawing=Drawing(self.time_slider, draw_forces_button, sim)
         energies_box = EnergiesBox(sim)
         self.range_box = RangeBox(np.max(self.dist(self.sim, self.sim.Y)))
@@ -133,11 +133,11 @@ class Animation(QtGui.QWidget):
         self.drawing.update()
         super().update()
 
-class Drawing(QtGui.QGraphicsView):
+class Drawing(QtWidgets.QGraphicsView):
     def __init__(self, time_slider, draw_forces_button, sim):
         self.time_slicer = time_slider
         self.draw_forces_button, self.sim = draw_forces_button, sim
-        self.scene = QtGui.QGraphicsScene()
+        self.scene = QtWidgets.QGraphicsScene()
 
         super().__init__(self.scene)
         self.setDragMode(self.ScrollHandDrag)

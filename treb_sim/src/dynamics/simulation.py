@@ -108,13 +108,15 @@ class Simulation:
 
     def run(self, continue_fun=None, debug=True):
         # build mass matrix M and external force vector Fext
-        self.Minv = mat(zeros(shape=[3*len(self.frames), 3*len(self.frames)]))
-        self.Fext = mat(zeros(shape=[3*len(self.frames), 1]))
+        self.Minv = zeros(shape=[3*len(self.frames), 3*len(self.frames)])
+        self.Fext = zeros(shape=[3*len(self.frames), 1])
         f=0
         for frame in self.frames:
             self.Minv[3*f:3*(f+1), 3*f:3*(f+1)] = frame.Minv()
-            self.Fext[3*f:3*(f+1),0] = mat(frame.Fext()).T
+            self.Fext[3*f:3*(f+1),0] = frame.Fext()
             f=f+1
+        self.Minv = mat(self.Minv)
+        self.Fext = mat(self.Fext)
 
         # state data structure
         self.Y=zeros([self.num_steps, 6*len(self.frames)])
