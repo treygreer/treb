@@ -15,6 +15,8 @@ approximately 2,091 ft.
 
 The viewer includes 2D/3D switching, touch camera controls, force and energy
 displays and playback. Install from Chrome once it reports **Offline ready**.
+The slider position is linear in elapsed seconds, even around the densely
+sampled release event. Playback uses elapsed wall-clock time at the chosen speed.
 `treb-2026-offline.html` is a self-contained download.
 
 To regenerate, run `scripts/export_web.py` in the simulator checkout, then
