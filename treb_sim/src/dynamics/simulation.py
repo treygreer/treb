@@ -1,5 +1,5 @@
 import numpy as np
-from numpy import mat, zeros
+from numpy import matrix as mat, zeros
 from scipy.integrate import ode
 
 class Simulation:

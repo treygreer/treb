@@ -1,4 +1,4 @@
-from numpy import mat, sqrt, array, hypot, asarray
+from numpy import matrix as mat, sqrt, array, hypot, asarray
 import math 
 
 def radians2rot(theta):
@@ -7,6 +7,7 @@ def radians2rot(theta):
 
 def rot2radians(r):
     """Returns the angle [radians] of a 2-element vector."""
+    r = asarray(r).ravel()
     return (math.atan2(r[1], r[0]))
 
 def rot2matrix(r):
@@ -29,4 +30,4 @@ def dual(x):
 def length_(x):
     "return length of a vector"
     x = asarray(x)
-    return sqrt(sum(x*x))
+    return sqrt((x*x).sum())

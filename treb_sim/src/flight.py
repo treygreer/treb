@@ -1,4 +1,4 @@
-from numpy import mat, array, zeros, copy, asarray
+from numpy import matrix as mat, array, zeros, copy, asarray
 from scipy.integrate import ode
 import pdb
 from math import pi, sqrt

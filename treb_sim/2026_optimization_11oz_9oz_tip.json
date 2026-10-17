@@ -1,0 +1,199 @@
+{
+  "configuration": "2013 machine with 2012 counterweight",
+  "pumpkin_weight_lb": 6.0,
+  "sling_weight_lb": 0.6875,
+  "arm_tip_hardware_weight_lb": 0.5625,
+  "counterweight_weight_lb": 4581.0,
+  "time_step_s": 0.0001,
+  "launch_elevation_deg": 30.0,
+  "objective": "Maximum predicted range at the specified elevation",
+  "spin_lift_modeled": false,
+  "search_bounds_ft": [
+    4.0,
+    16.0
+  ],
+  "length_tolerance_ft": 0.002,
+  "range_definition": "Historical drag prediction to axle-height landing plane",
+  "best": {
+    "sling_length_ft": 9.439528767033156,
+    "range_ft": 2091.120325309593,
+    "release_time_s": 0.6761512033241125,
+    "launch_angle_deg": 30.00000000000005,
+    "arm_kinetic_energy_j": 3511.5006940769836,
+    "arm_rotational_energy_j": 2578.197364592344,
+    "pumpkin_speed_m_s": 125.30132812772847
+  },
+  "trials": [
+    {
+      "sling_length_ft": 4.0,
+      "range_ft": 1393.5081098233038,
+      "release_time_s": 0.64354418075427,
+      "launch_angle_deg": 30.000000000030397,
+      "arm_kinetic_energy_j": 15659.994061486479,
+      "arm_rotational_energy_j": 11508.439323210301,
+      "pumpkin_speed_m_s": 88.38068591947854
+    },
+    {
+      "sling_length_ft": 6.0,
+      "range_ft": 1812.5825409700694,
+      "release_time_s": 0.6510329157151943,
+      "launch_angle_deg": 29.99999999998893,
+      "arm_kinetic_energy_j": 9652.369646205048,
+      "arm_rotational_energy_j": 7097.366035428072,
+      "pumpkin_speed_m_s": 109.90152393905807
+    },
+    {
+      "sling_length_ft": 8.0,
+      "range_ft": 2044.514833195488,
+      "release_time_s": 0.664444601278032,
+      "launch_angle_deg": 29.999999999994014,
+      "arm_kinetic_energy_j": 5120.563003962002,
+      "arm_rotational_energy_j": 3761.0015600350744,
+      "pumpkin_speed_m_s": 122.67813703024096
+    },
+    {
+      "sling_length_ft": 10.0,
+      "range_ft": 2081.6948601282525,
+      "release_time_s": 0.6811531862384659,
+      "launch_angle_deg": 30.000000000000043,
+      "arm_kinetic_energy_j": 3094.31559274984,
+      "arm_rotational_energy_j": 2274.116356557857,
+      "pumpkin_speed_m_s": 124.73139064249523
+    },
+    {
+      "sling_length_ft": 12.0,
+      "range_ft": 1827.8353146662512,
+      "release_time_s": 0.7035303077976506,
+      "launch_angle_deg": 29.999999999999545,
+      "arm_kinetic_energy_j": 1869.2452218118638,
+      "arm_rotational_energy_j": 1386.7288199848133,
+      "pumpkin_speed_m_s": 110.3843669857347
+    },
+    {
+      "sling_length_ft": 14.0,
+      "range_ft": 1063.367528737011,
+      "release_time_s": 0.7509404116508187,
+      "launch_angle_deg": 30.000000000000036,
+      "arm_kinetic_energy_j": 898.8352217156967,
+      "arm_rotational_energy_j": 666.4861402266973,
+      "pumpkin_speed_m_s": 71.88524409376778
+    },
+    {
+      "sling_length_ft": 16.0,
+      "range_ft": 195.22460065750906,
+      "release_time_s": 0.9318196616645564,
+      "launch_angle_deg": 29.99999999999508,
+      "arm_kinetic_energy_j": 159.39130390329905,
+      "arm_rotational_energy_j": 116.93853868777319,
+      "pumpkin_speed_m_s": 25.525208712692844
+    },
+    {
+      "sling_length_ft": 9.52786404500042,
+      "range_ft": 2090.9574762652205,
+      "release_time_s": 0.6769206721633818,
+      "launch_angle_deg": 29.999999999999464,
+      "arm_kinetic_energy_j": 3441.130484573693,
+      "arm_rotational_energy_j": 2526.761981008163,
+      "pumpkin_speed_m_s": 125.27971818423644
+    },
+    {
+      "sling_length_ft": 10.47213595499958,
+      "range_ft": 2058.264177892101,
+      "release_time_s": 0.6856373899235797,
+      "launch_angle_deg": 29.99999999999912,
+      "arm_kinetic_energy_j": 2777.513961279992,
+      "arm_rotational_energy_j": 2044.6599920030876,
+      "pumpkin_speed_m_s": 123.32946232215083
+    },
+    {
+      "sling_length_ft": 8.94427190999916,
+      "range_ft": 2085.1006730735176,
+      "release_time_s": 0.6719579365608822,
+      "launch_angle_deg": 29.999999999999922,
+      "arm_kinetic_energy_j": 3952.434958134295,
+      "arm_rotational_energy_j": 2901.4061771839174,
+      "pumpkin_speed_m_s": 125.00585504951327
+    },
+    {
+      "sling_length_ft": 9.407740738977267,
+      "range_ft": 2091.10187992843,
+      "release_time_s": 0.6758814401401206,
+      "launch_angle_deg": 30.00000000000003,
+      "arm_kinetic_energy_j": 3536.842747459213,
+      "arm_rotational_energy_j": 2596.732700121399,
+      "pumpkin_speed_m_s": 125.30164994320668
+    },
+    {
+      "sling_length_ft": 9.443013568648748,
+      "range_ft": 2091.1185997591015,
+      "release_time_s": 0.6761814479147419,
+      "launch_angle_deg": 29.999999999999947,
+      "arm_kinetic_energy_j": 3508.683319913598,
+      "arm_rotational_energy_j": 2576.137131400882,
+      "pumpkin_speed_m_s": 125.30092214229217
+    },
+    {
+      "sling_length_ft": 9.437375041190668,
+      "range_ft": 2091.105442162323,
+      "release_time_s": 0.6761375332308059,
+      "launch_angle_deg": 29.999999999998828,
+      "arm_kinetic_energy_j": 3512.783083810483,
+      "arm_rotational_energy_j": 2579.1354807156076,
+      "pumpkin_speed_m_s": 125.29994212494977
+    },
+    {
+      "sling_length_ft": 9.475423566653468,
+      "range_ft": 2091.08406589284,
+      "release_time_s": 0.6764632036637958,
+      "launch_angle_deg": 30.000000000000004,
+      "arm_kinetic_energy_j": 3482.6459126240948,
+      "arm_rotational_energy_j": 2557.100723795164,
+      "pumpkin_speed_m_s": 125.2953894666798
+    },
+    {
+      "sling_length_ft": 9.455393086311235,
+      "range_ft": 2091.1093534674515,
+      "release_time_s": 0.6762889690554076,
+      "launch_angle_deg": 30.000000000000018,
+      "arm_kinetic_energy_j": 3498.702896801077,
+      "arm_rotational_energy_j": 2568.839470011956,
+      "pumpkin_speed_m_s": 125.29918371562528
+    },
+    {
+      "sling_length_ft": 9.447018929535991,
+      "range_ft": 2091.116139801585,
+      "release_time_s": 0.6762162226309903,
+      "launch_angle_deg": 29.99999999999963,
+      "arm_kinetic_energy_j": 3505.44939250941,
+      "arm_rotational_energy_j": 2573.772383894275,
+      "pumpkin_speed_m_s": 125.30041020844135
+    },
+    {
+      "sling_length_ft": 9.440859842806262,
+      "range_ft": 2091.1197108429074,
+      "release_time_s": 0.6761627546392373,
+      "launch_angle_deg": 30.00000000000005,
+      "arm_kinetic_energy_j": 3510.4241397421183,
+      "arm_rotational_energy_j": 2577.4101137535736,
+      "pumpkin_speed_m_s": 125.30117729751198
+    },
+    {
+      "sling_length_ft": 9.439528767033156,
+      "range_ft": 2091.120325309593,
+      "release_time_s": 0.6761512033241125,
+      "launch_angle_deg": 30.00000000000005,
+      "arm_kinetic_energy_j": 3511.5006940769836,
+      "arm_rotational_energy_j": 2578.197364592344,
+      "pumpkin_speed_m_s": 125.30132812772847
+    },
+    {
+      "sling_length_ft": 9.438706116963775,
+      "range_ft": 2091.1034570024813,
+      "release_time_s": 0.6761494680005856,
+      "launch_angle_deg": 29.999999999998604,
+      "arm_kinetic_energy_j": 3511.699357424047,
+      "arm_rotational_energy_j": 2578.3448012755343,
+      "pumpkin_speed_m_s": 125.2996622986001
+    }
+  ]
+}

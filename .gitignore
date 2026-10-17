@@ -34,3 +34,18 @@ nosetests.xml
 #.project
 #.pydevproject
 *.py~
+
+# Local uv environment
+.venv/
+
+# Browser build dependencies and local test artifacts
+node_modules/
+web/test-output/
+web/.npm-cache/
+.site-deploy/
+
+# Reproducible exports, screenshots, and packaged downloads
+models/extracted/
+web/site/
+web/*.zip
+treb_sim/*.progress.json

@@ -13,10 +13,10 @@ class Object:
         self.idx = len(frame.objects)
         frame.objects.append(self)
         self.frame = frame
-        self.origin = np.mat(origin).T
+        self.origin = np.matrix(origin).T
         self.theta = theta
         self.update_working_vars()
-        self.cg = np.mat(cg).T
+        self.cg = np.matrix(cg).T
         self.color = color
 
     def update_working_vars(self):
@@ -38,7 +38,7 @@ class Object:
     def KE(self):
         "return object kinetic energy"
         v = self.frame.frame2worldv(self.obj2frame(self.cg))
-        return (0.5*self.mass*v.T*v +
+        return (0.5*self.mass*(v.T*v).item() +
                 0.5*self.moment*self.frame.omega*self.frame.omega)
 
     def obj2frame(self, xobj):
@@ -59,14 +59,14 @@ class Object:
 
     def dxdtheta(self, xobj):
         "given xobj, return d(xworld)/d(theta)"
-        return (np.mat([[-self.frame.r[1], -self.frame.r[0]],
+        return (np.matrix([[-self.frame.r[1], -self.frame.r[0]],
                      [ self.frame.r[0], -self.frame.r[1]]]) *
                 self.obj2frame(xobj))
 
     def dvdtheta(self, xobj):
         "given xobj, return d(vworld)/d(theta)"
         return (self.frame.omega *
-                np.mat([[-self.frame.r[0],  self.frame.r[1]],
+                np.matrix([[-self.frame.r[0],  self.frame.r[1]],
                      [-self.frame.r[1], -self.frame.r[0]]]) *
                 self.obj2frame(xobj))
 
@@ -84,16 +84,14 @@ class Rectangle(Object):
             moment = (l*l + w*w) * mass/12.0
         self.moment = moment
 
-        self.corners = np.mat([[-l/2.0, -w/2.0],
+        self.corners = np.matrix([[-l/2.0, -w/2.0],
                             [ l/2.0, -w/2.0],
                             [ l/2.0,  w/2.0],
                             [-l/2.0,  w/2.0]]).T
 
     def draw(self, scene):
         pen = QtGui.QPen()
-        pen.setColor(QtGui.QColor(self.color[0]*255,
-                                  self.color[1]*255,
-                                  self.color[2]*255))
+        pen.setColor(QtGui.QColor.fromRgbF(*self.color))
         pen.setWidth(0)
         xw = self.obj2world(self.corners)
         scene.addPolygon(QtGui.QPolygonF(
@@ -114,11 +112,9 @@ class Circle(Object):
 
     def draw(self, scene):
         pen = QtGui.QPen()
-        pen.setColor(QtGui.QColor(self.color[0]*255,
-                                  self.color[1]*255,
-                                  self.color[2]*255))
+        pen.setColor(QtGui.QColor.fromRgbF(*self.color))
         pen.setWidth(0)
-        center = self.obj2world(np.mat((0,0)).T)
+        center = self.obj2world(np.matrix((0,0)).T).A1
         radius2 = self.radius/math.sqrt(2)
         scene.addEllipse(QtCore.QRectF(QtCore.QPointF(center[0]-radius2,
                                                       center[1]-radius2),
@@ -139,15 +135,15 @@ class Beam(Object):
         self.x1,self.t1,self.d1 = x1,t1,d1
 
         xvec = np.linspace(x0, x1, num=100)
-        self.mass = np.trapz(self.t(xvec)*self.d(xvec)*density, xvec)
-        xcg = np.trapz(xvec*self.t(xvec)*self.d(xvec)*density, xvec) / self.mass
-        self.cg = np.mat((xcg,0.0)).T
+        self.mass = np.trapezoid(self.t(xvec)*self.d(xvec)*density, xvec)
+        xcg = np.trapezoid(xvec*self.t(xvec)*self.d(xvec)*density, xvec) / self.mass
+        self.cg = np.matrix((xcg,0.0)).T
         self.mass = abs(self.mass)
-        self.moment = abs(np.trapz((xvec-xcg)**2.0 * self.t(xvec) * self.d(xvec) * density +
+        self.moment = abs(np.trapezoid((xvec-xcg)**2.0 * self.t(xvec) * self.d(xvec) * density +
                                 self.t(xvec) * self.d(xvec)**3.0 * density / 12.0,
                                 xvec))
 
-        self.corners = np.mat([[x0, -d0/2.0],
+        self.corners = np.matrix([[x0, -d0/2.0],
                             [x0,  d0/2.0],
                             [x1,  d1/2.0],
                             [x1, -d1/2.0]]).T
@@ -172,9 +168,7 @@ class Beam(Object):
 
     def draw(self, scene):
         pen = QtGui.QPen()
-        pen.setColor(QtGui.QColor(self.color[0]*255,
-                                  self.color[1]*255,
-                                  self.color[2]*255))
+        pen.setColor(QtGui.QColor.fromRgbF(*self.color))
         pen.setWidth(0)
         xw = self.obj2world(self.corners)
         scene.addPolygon(QtGui.QPolygonF(

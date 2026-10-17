@@ -19,14 +19,14 @@ import scipy
 import scipy.interpolate
 import numpy as np
 from math import pi, sin, cos, sqrt, acos, atan2
-from scipy.optimize.optimize import fmin
-from scipy.optimize.minpack import fsolve
-#from scipy.interpolate.fitpack2 import UnivariateSpline
+from scipy.optimize import fmin
+from scipy.optimize import fsolve
+#from scipy.interpolate import UnivariateSpline
 from pylab import plot
 import sys
 from PyQt5.QtWidgets import QApplication
 
-scipy.set_printoptions(precision=5, linewidth=200)
+np.set_printoptions(precision=5, linewidth=200)
 def treb( sling_length = 9.3,    # sling length, feet
           ramp_length = 11,          # ramp length, feet
           link_sum = 5.587,          # sum of upper and lower link lengths, feet
@@ -39,7 +39,7 @@ def treb( sling_length = 9.3,    # sling length, feet
           cw_drop = 5.0,        # feet
           cw_weight = 4581 + 2000,     # pounds
           cw_moment_arm = 10.41, # distance from hinge to cw center of gravity, feet
-          cw_moment = 3.516e6,   # counterweight moment about its CG, lb*ft^2
+          cw_moment = 3.516e6,   # assembly inertia about its CG, lb*in^2 (inferred historical units)
           upper_link_weight = 2*58.,  # pounds
           lower_link_weight = 2*52.,  # pounds
           link_axle_weight = 106,     # pounds
@@ -57,7 +57,8 @@ def treb( sling_length = 9.3,    # sling length, feet
           arm_end_thick = (3.+1./8)/12.,# inches
           release_pin_weight = 9, # pounds
           release_time = 0.0, #seconds
-          debug = True):
+          debug = True,
+          arm_tip_hardware_weight = 0.0): # additional pounds; defaults preserve historical machine
 
     sim = dynamics.simulation.Simulation(max_time=sim_duration,
                                          time_step=time_step)
@@ -77,13 +78,13 @@ def treb( sling_length = 9.3,    # sling length, feet
     ramp_length = foot2meter(ramp_length)
     link_sum = foot2meter(link_sum)
     sim.release_time = release_time
-    alpha = scipy.deg2rad(alpha)
-    omega = scipy.deg2rad(omega)
+    alpha = np.deg2rad(alpha)
+    omega = np.deg2rad(omega)
     cw_drop = foot2meter(cw_drop)
     cw_mass = lb2kgram(cw_weight)
     cw_moment_arm = foot2meter(cw_moment_arm)
-    cw_moment = cw_moment / 32.174049 * 0.00029263965 # convert lb to slug, then
-               # slug*in^2  to  kgram*meter^2
+    # Convert mass inertia directly from lb*in^2 to kg*m^2; no slug conversion.
+    cw_moment = lb2kgram(cw_moment) * inch2meter(1.0)**2
     connector_rod_mass = lb2kgram(connector_rod_weight)
     connector_brace_mass = lb2kgram(connector_brace_weight)
     upper_link_mass = lb2kgram(upper_link_weight)
@@ -151,7 +152,7 @@ def treb( sling_length = 9.3,    # sling length, feet
         print ("  ellipse_a=", meter2foot(ellipse_a))
         print ("  ellipse_f=", meter2foot(ellipse_f))
         print ("  ellipse_e=", ellipse_e)
-        print ("  theta=", scipy.rad2deg(theta))
+        print ("  theta=", np.rad2deg(theta))
         print ("  connector_length=", meter2foot(connector_length))
         print ("  short_arm_length=", meter2foot(short_arm_length))
         print ("  axle_rest_connection_distance=",
@@ -188,8 +189,8 @@ def treb( sling_length = 9.3,    # sling length, feet
         print("cocked_cw=", meter2foot(cocked_cw_ctr))
         print("cocked_short_arm=", meter2foot(cocked_short_arm_end))
         print("cocked_long_arm=", meter2foot(cocked_long_arm_end))
-        print("cocked_lower_link_angle=", scipy.rad2deg(cocked_lower_link_angle))
-        print("rest_lower_link_angle=", scipy.rad2deg(rest_lower_link_angle))
+        print("cocked_lower_link_angle=", np.rad2deg(cocked_lower_link_angle))
+        print("rest_lower_link_angle=", np.rad2deg(rest_lower_link_angle))
         print("connector_length=", meter2foot(connector_length))
         print("lower_link_length=", meter2foot(lower_link_length))
         print("rest_cw_ctr=", meter2foot(rest_cw_ctr))
@@ -254,6 +255,13 @@ def treb( sling_length = 9.3,    # sling length, feet
                                              radius=inch2meter(6),
                                              origin=(-long_arm_length, 0),
                                              mass=release_pin_mass, color=(1.0, 1.0, 1.0))
+    if arm_tip_hardware_weight:
+        # Added hardware is a point mass at the sling attachment. Frame.init
+        # includes its CG shift and parallel-axis inertia in the arm assembly.
+        sim.armFrame.tip_hardware = Circle(sim.armFrame, radius=0.0,
+                                          origin=(-long_arm_length, 0),
+                                          mass=lb2kgram(arm_tip_hardware_weight),
+                                          moment=0.0, color=(0.35, 0.4, 0.46))
 
     # Weight frame origin is at pivot point, ramp horizontal to the right
     cocked_ramp_angle = rot2radians(cocked_cw_ctr-hinge_pos)
@@ -392,7 +400,7 @@ def treb( sling_length = 9.3,    # sling length, feet
         sim.sling.enabled = False
 
     print( "    running simulation")
-    from time import clock
+    from time import perf_counter as clock
     tstart=clock()
     sim.run(continue_sim, debug=debug)
     print ("    done: time=%g sec" % (clock()-tstart))
@@ -401,7 +409,7 @@ def treb( sling_length = 9.3,    # sling length, feet
         sim.range = Y2range(sim,sim.Y)
         range_spline = scipy.interpolate.UnivariateSpline(sim.t, sim.range, k=3,s=0.0)
         d0,t0 = max( (range,time) for range,time in zip(sim.range, sim.t) ) # find guess
-        sim.tmax = fsolve(range_spline, t0, args=1)  # root of first derivative of range
+        sim.tmax = fsolve(range_spline, t0, args=1).item()  # root of first derivative of range
         sim.maxrange = range_spline(sim.tmax)
         launchDegrees_spline = scipy.interpolate.UnivariateSpline(sim.t, Y2launchDegrees(sim.Y), k=3,s=0.0)
         sim.launchDegrees = launchDegrees_spline(sim.tmax)
@@ -550,3 +558,4 @@ if __name__ == '__main__':
     sim=treb(release_time=0.661, debug=True)
     app = QApplication(sys.argv)
     anim=Animation(sim, Y2range)
+    sys.exit(app.exec_())

@@ -1,5 +1,5 @@
 import numpy as np
-from pylab import find
+from numpy import flatnonzero as find
 from math import pi
 import pdb  # @UnusedImport
 

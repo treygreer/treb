@@ -21,8 +21,8 @@ class NailSpring(Spring):
         super().__init__(sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
-        self.x_frame = obj.obj2frame(np.mat(xobj).T)
-        self.x_world = np.mat(x_world).T
+        self.x_frame = obj.obj2frame(np.matrix(xobj).T)
+        self.x_world = np.matrix(x_world).T
         self.spring_constant = spring_constant
         self.damping_constant = damping_constant
         self.dim=2
@@ -42,13 +42,13 @@ class NailSpring(Spring):
         arm_vec = self.frame.frame2world(self.x_frame) - self.frame.origin
         force_vec = -(C * self.spring_constant +
                       Cdot * self.damping_constant).A1
-        torque = np.asscalar(arm_vec[0]*force_vec[1] - arm_vec[1]*force_vec[0])
-        return np.mat([force_vec[0], force_vec[1], torque]).T
+        torque = (arm_vec[0]*force_vec[1] - arm_vec[1]*force_vec[0]).item()
+        return np.matrix([force_vec[0], force_vec[1], torque]).T
 
     def draw(self, scene, draw_forces):
         '''draw the spring in a PyQt5 scene'''
         x_frame = self.frame.frame2world(self.x_frame).A1
-        x_world = self.x_world
+        x_world = self.x_world.A1
         pen = QtGui.QPen()
         pen.setColor(QtGui.QColor(128,128,128))
         pen.setWidth(0)
@@ -63,8 +63,8 @@ class NailSpring(Spring):
 
         # draw force
         if (draw_forces):
-            pen.setWidth(0.1)
-            force = self.force()
+            pen.setWidthF(0.1)
+            force = self.force().A1
             scene.addLine(x_frame[0],
                           x_frame[1],
                           x_frame[0]+force[0]/DRAW_FORCE_SCALE,

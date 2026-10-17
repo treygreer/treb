@@ -1,0 +1,18 @@
+[project]
+name = "treb"
+version = "0.1.0"
+description = "Trebuchet dynamics and flight simulator"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "numpy>=2.3.5,<3",
+    "scipy>=1.16.3,<2",
+    "matplotlib>=3.10.8,<4",
+    "PyQt5>=5.15.11,<6",
+    "pyqtgraph>=0.14,<0.15",
+    "PyOpenGL>=3.1.10,<4",
+]
+
+[tool.uv]
+package = false
+required-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]

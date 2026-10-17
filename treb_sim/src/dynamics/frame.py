@@ -13,10 +13,10 @@ class Frame:
         self.name = name
         self.idx = len(sim.frames)
         sim.frames.append(self)
-        self.origin = np.mat(origin).T
+        self.origin = np.matrix(origin).T
         self.theta = theta
         self.omega = 0.0
-        self.v = np.mat((0.0,0.0)).T
+        self.v = np.matrix((0.0,0.0)).T
         self.update_working_vars()
         self.objects = []
 
@@ -26,7 +26,7 @@ class Frame:
             self.mass = mass
         else:
             # compute frame's mass and center of gravity
-            cg = np.mat((0.0,0.0)).T
+            cg = np.matrix((0.0,0.0)).T
             self.mass = 0.0
             for obj in self.objects:
                 self.mass += obj.mass
@@ -51,9 +51,9 @@ class Frame:
 
     def scatter_state(self, y):
         my_y = y[6*self.idx:6*self.idx+6]
-        self.origin = np.mat(my_y[0:2]).T
+        self.origin = np.matrix(my_y[0:2]).T
         self.theta = my_y[2]
-        self.v = np.mat(my_y[3:5]).T
+        self.v = np.matrix(my_y[3:5]).T
         self.omega = my_y[5]
         self.update_working_vars()
 
@@ -78,7 +78,7 @@ class Frame:
         pen = QtGui.QPen()
         pen.setColor(QtGui.QColor(0,0,0))
         pen.setWidth(0)
-        xo = self.origin
+        xo = self.origin.A1
         scene.addLine(xo[0]-0.02, xo[1],
                       xo[0]+0.02, xo[1], pen)
         scene.addLine(xo[0], xo[1]-0.02,
@@ -118,7 +118,7 @@ class Frame:
 
     def KE(self):
         "return kinetic energy at current time"
-        return (0.5*self.mass*self.v.T*self.v +
+        return (0.5*self.mass*(self.v.T*self.v).item() +
                 0.5*self.moment*self.omega*self.omega)
 
     def KEvec(self):
@@ -127,7 +127,7 @@ class Frame:
         KE=np.zeros(Y.shape[0])
         for time_idx in range(Y.shape[0]):
             self.scatter_state(Y[time_idx, :])
-            KE[time_idx] = (0.5*self.mass*self.v.T*self.v +
+            KE[time_idx] = (0.5*self.mass*(self.v.T*self.v).item() +
                             0.5*self.moment*self.omega*self.omega)
         return(KE)
 
@@ -145,11 +145,11 @@ class Frame:
 
     def dxdtheta(self, xframe):
         "given xframe, return d(xworld)/d(theta)"
-        return (np.mat([[-self.r[1], -self.r[0]],
+        return (np.matrix([[-self.r[1], -self.r[0]],
                      [ self.r[0], -self.r[1]]]) * xframe)
 
     def dvdtheta(self, xframe):
         "given xframe, return d(vworld)/d(theta)"
-        return (self.omega * np.mat([[-self.r[0],  self.r[1]],
+        return (self.omega * np.matrix([[-self.r[0],  self.r[1]],
                                   [-self.r[1], -self.r[0]]]) * xframe)
 

@@ -1,0 +1,71 @@
+{
+  "sling_length_ft": 9.44,
+  "range_change_percent": -1.1844338665034204,
+  "arm_energy_change_percent": -15.625500669271464,
+  "checks": [
+    {
+      "time_step_s": 0.0002,
+      "lower_angle": {
+        "time_s": 0.6763478317438187,
+        "angle_deg": 30.000000000000036,
+        "range_m": 631.2417320824198,
+        "arm_kinetic_energy_j": 3042.816453027438,
+        "arm_rotational_energy_j": 2241.043769352721,
+        "pumpkin_speed_m_s": 124.12457566527951,
+        "range_ft": 2071.0030580131884
+      },
+      "previous_unrestricted": {
+        "time_s": 0.6738000000000001,
+        "angle_deg": 34.35541666299143,
+        "range_m": 638.6782652638278,
+        "arm_kinetic_energy_j": 3543.949078121538,
+        "arm_rotational_energy_j": 2608.2043330588695,
+        "pumpkin_speed_m_s": 122.7571611940592,
+        "range_ft": 2095.4011327553408
+      }
+    },
+    {
+      "time_step_s": 0.0001,
+      "lower_angle": {
+        "time_s": 0.6763469068622538,
+        "angle_deg": 29.9999999999983,
+        "range_m": 631.2424578671114,
+        "arm_kinetic_energy_j": 3042.830257842813,
+        "arm_rotational_energy_j": 2241.0517224013856,
+        "pumpkin_speed_m_s": 124.12480030046609,
+        "range_ft": 2071.00543919656
+      },
+      "previous_unrestricted": {
+        "time_s": 0.6735,
+        "angle_deg": 34.85816767281655,
+        "range_m": 638.8087247451718,
+        "arm_kinetic_energy_j": 3606.3387421306306,
+        "arm_rotational_energy_j": 2653.917675659778,
+        "pumpkin_speed_m_s": 122.58766896166554,
+        "range_ft": 2095.829149426417
+      }
+    },
+    {
+      "time_step_s": 5e-05,
+      "lower_angle": {
+        "time_s": 0.6763477054845503,
+        "angle_deg": 30.000000000015863,
+        "range_m": 631.2417934243005,
+        "arm_kinetic_energy_j": 3042.826122560694,
+        "arm_rotational_energy_j": 2241.0515228866666,
+        "pumpkin_speed_m_s": 124.12459713265416,
+        "range_ft": 2071.0032592660777
+      },
+      "previous_unrestricted": {
+        "time_s": 0.6735,
+        "angle_deg": 34.85948020099861,
+        "range_m": 638.798324620669,
+        "arm_kinetic_energy_j": 3606.497593532516,
+        "arm_rotational_energy_j": 2654.0372285673857,
+        "pumpkin_speed_m_s": 122.58702249463562,
+        "range_ft": 2095.7950282830348
+      }
+    }
+  ],
+  "spin_lift_modeled": false
+}

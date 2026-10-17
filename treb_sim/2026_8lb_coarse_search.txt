@@ -1,0 +1,23 @@
+Broad screening and partial refinement for the 8 lb pumpkin, 11 oz sling,
+9 oz added tip hardware, at 30 degrees. Original command:
+uv run python scripts/optimize_2026.py --elevation 30 --output treb_sim/2026_optimization_8lb_11oz_9oz_tip.json
+
+The command reached its 180-second execution limit before writing the final
+report. These are its printed results, rounded as displayed. The completed
+refinement report is saved separately with full precision.
+
+4.000000 ft: 1448.421 ft at 0.647211 s, 30.000 degrees, arm KE 13563.0 J
+6.000000 ft: 1892.379 ft at 0.655320 s, 30.000 degrees, arm KE 7179.5 J
+8.000000 ft: 2129.508 ft at 0.669756 s, 30.000 degrees, arm KE 2894.0 J
+10.000000 ft: 2172.822 ft at 0.687385 s, 30.000 degrees, arm KE 1460.5 J
+12.000000 ft: 1940.568 ft at 0.709074 s, 30.000 degrees, arm KE 1217.8 J
+14.000000 ft: 1122.766 ft at 0.754453 s, 30.000 degrees, arm KE 793.6 J
+16.000000 ft: 197.354 ft at 0.933789 s, 30.000 degrees, arm KE 154.3 J
+9.527864 ft: 2177.323 ft at 0.683014 s, 30.000 degrees, arm KE 1631.4 J
+10.472136 ft: 2154.806 ft at 0.691912 s, 30.000 degrees, arm KE 1354.0 J
+8.944272 ft: 2169.968 ft at 0.677788 s, 30.000 degrees, arm KE 1963.4 J
+9.500213 ft: 2177.306 ft at 0.682762 s, 30.000 degrees, arm KE 1643.9 J
+9.528596 ft: 2177.323 ft at 0.683021 s, 30.000 degrees, arm KE 1631.1 J
+9.537996 ft: 2177.325 ft at 0.683107 s, 30.000 degrees, arm KE 1627.0 J
+9.894806 ft: 2174.076 ft at 0.686399 s, 30.000 degrees, arm KE 1492.3 J
+9.539172 ft: 2177.325 ft at 0.683118 s, 30.000 degrees, arm KE 1626.4 J

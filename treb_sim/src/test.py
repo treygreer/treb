@@ -17,9 +17,9 @@ import scipy
 import scipy.interpolate
 import numpy as np
 from math import pi, sin, cos, sqrt, acos, atan2
-from scipy.optimize.minpack import fsolve
+from scipy.optimize import fsolve
 
-scipy.set_printoptions(precision=5, linewidth=200)
+np.set_printoptions(precision=5, linewidth=200)
 
 def continue_sim(sim, time, y):
     "continue simulation?"

@@ -1,0 +1,1029 @@
+{
+  "units": "metres",
+  "source": "models/treb.skp",
+  "source_sha256": "b68b2fc203a30430c565d1af8b6aa5546673bae06aa47f08b694f21ce04c61ea",
+  "axes": "X horizontal, Y across machine, Z vertical",
+  "anchors": {
+    "axle": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "hinge": [
+      0.20319531857967377,
+      0.0,
+      -1.2191981077194214
+    ],
+    "hanger": [
+      3.470147967338562,
+      0.0,
+      -0.6096000671386719
+    ],
+    "link_joint": [
+      2.6971739530563354,
+      0.0,
+      -0.42123258113861084
+    ],
+    "counterweight_joint": [
+      3.5277481079101562,
+      0.0,
+      -0.7857633829116821
+    ],
+    "short_arm_joint": [
+      -0.3968496024608612,
+      0.0,
+      0.33162224292755127
+    ]
+  },
+  "bindings": {
+    "machine": {
+      "reference_angle": 0.0,
+      "constraint": "axle",
+      "side": 1
+    },
+    "arm": {
+      "reference_angle": 1.5707963267948966,
+      "constraint": "axle",
+      "side": 0
+    },
+    "weight": {
+      "reference_angle": 0.12964261693075183,
+      "constraint": "hinge",
+      "side": 0
+    },
+    "upper_link": {
+      "reference_angle": 2.902559805542839,
+      "constraint": "hanger",
+      "side": 0
+    },
+    "lower_link": {
+      "reference_angle": 2.7280160071947006,
+      "constraint": "rampPin",
+      "side": 1
+    },
+    "connector": {
+      "reference_angle": -0.23868698136398567,
+      "constraint": "connectorPin1",
+      "side": 1
+    }
+  },
+  "included": [
+    {
+      "path": "ROOT / trailer#1 / frame half#1",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_472",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_523",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_580",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_631",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_1928",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_1955",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_2005",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half#1 / Component_2055",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_2214",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_2265",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_2322",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_2373",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_3670",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_3697",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_3747",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / frame half / Component_3797",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / axle#1",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / axle",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / Component_320",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / trailer#1 / Component_4253",
+      "layer": "trailer",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / pillow#1",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / pillow#1 / Component_5410",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / pillow",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / pillow / Component_5921",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4383",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4419",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4446",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4594",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4742",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4891",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4918",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4944",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_4970",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_5119",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_5146",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_5190",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_5234",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_5260",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6431",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6458",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6485",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6847",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6874",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6900",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6931",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_6958",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7182",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7209",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7236",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7409",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7440",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7610",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7715",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame#1 / Component_7753",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / pillow#3",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / pillow#3 / Component_33589",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / pillow#2",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / pillow#2 / Component_34100",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_32562",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_32598",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_32625",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_32773",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_32921",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33070",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33097",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33123",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33149",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33298",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33325",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33369",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33413",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_33439",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_34610",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_34637",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_34664",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35026",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35053",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35079",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35110",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35137",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35361",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35388",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35415",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35588",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35619",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35789",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35894",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Frame / Component_35932",
+      "layer": "frame",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / race#15",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / washer#7",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / washer#10",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / washer#4",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / Component_8986",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / Component_8986",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Upper Link#1 / Component_9754",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Lower Link#1",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Lower Link#1 / race#9",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Lower Link#1 / race#12",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Lower Link#1 / Component_26625",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / Lower Link#1 / Component_26948",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_11421",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_11549",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_11697",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_11786",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_11935",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_11962",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_12111",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_12137",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / counterweight#1 / Component_12286",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_8984 / connector half#1 / Component_12655",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_8984 / connector half#1 / Component_12699",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_8984 / connector half#1 / Component_12699 / race#7",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_8984 / connector half#1 / Component_12699 / Component_12700",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_8984 / connector half#1 / Component_13050",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13207",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13207",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13207 / Component_24081",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13207 / Component_24119",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13430",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13456",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13482",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13630",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#1 / Component_13833",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14011",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14011",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14011 / Component_24081",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14011 / Component_24119",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14234",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14260",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14286",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14434",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_13205 / arm#2 / Component_14637",
+      "layer": "cocked",
+      "body": "arm"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / race#4",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / washer#1",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / washer#2",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / washer",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / Component_14829",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / Component_14829",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Upper Link#3 / Component_15597",
+      "layer": "cocked",
+      "body": "upper_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Lower Link#3",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Lower Link#3 / race#2",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Lower Link#3 / race#3",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Lower Link#3 / Component_26625",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / Lower Link#3 / Component_26948",
+      "layer": "cocked",
+      "body": "lower_link"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17264",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17392",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17540",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17629",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17778",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17805",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17954",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_17980",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / counterweight#3 / Component_18129",
+      "layer": "cocked",
+      "body": "weight"
+    },
+    {
+      "path": "ROOT / Component_14827 / connector half#3 / Component_18498",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_14827 / connector half#3 / Component_18542",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_14827 / connector half#3 / Component_18542 / race#5",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_14827 / connector half#3 / Component_18542 / Component_18543",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_14827 / connector half#3 / Component_18893",
+      "layer": "cocked",
+      "body": "connector"
+    },
+    {
+      "path": "ROOT / Component_29771",
+      "layer": "Layer0",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_32351",
+      "layer": "Layer0",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_32351",
+      "layer": "Layer0",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_32351",
+      "layer": "Layer0",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_32528",
+      "layer": "Layer0",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_32528",
+      "layer": "Layer0",
+      "body": "machine"
+    },
+    {
+      "path": "ROOT / Component_32528",
+      "layer": "Layer0",
+      "body": "machine"
+    }
+  ],
+  "excluded": [
+    "ROOT / trailer#1 / frame half#1 / wheel#1",
+    "ROOT / trailer#1 / frame half#1 / wheel#1 / Component_745",
+    "ROOT / trailer#1 / frame half#1 / wheel",
+    "ROOT / trailer#1 / frame half#1 / wheel / Component_1337",
+    "ROOT / trailer#1 / frame half / wheel#3",
+    "ROOT / trailer#1 / frame half / wheel#3 / Component_2487",
+    "ROOT / trailer#1 / frame half / wheel#2",
+    "ROOT / trailer#1 / frame half / wheel#2 / Component_3079",
+    "ROOT / Frame#1 / Component_34837",
+    "ROOT / Trigger#1 / Component_29921",
+    "ROOT / Trigger#1 / Component_29921",
+    "ROOT / Trigger#1 / Component_29921",
+    "ROOT / Trigger#1 / Component_30631",
+    "ROOT / Trigger#1 / Component_30631",
+    "ROOT / Trigger#1 / Component_30631",
+    "ROOT / Trigger#1 / Component_31998",
+    "ROOT / Trigger / Component_31139",
+    "ROOT / Trigger / Component_31849",
+    "ROOT / Trigger / Component_31998",
+    "ROOT / Frame / Component_34837",
+    "ROOT / Google Earth Terrain",
+    "ROOT / Google Earth Terrain",
+    "ROOT / Google Earth Snapshot",
+    "ROOT / Google Earth Snapshot",
+    "ROOT / Component_8835",
+    "ROOT / Component_19052 / Upper Link#2 / race#16",
+    "ROOT / Component_19052 / Upper Link#2 / washer#8",
+    "ROOT / Component_19052 / Upper Link#2 / washer#11",
+    "ROOT / Component_19052 / Upper Link#2 / washer#5",
+    "ROOT / Component_19052 / Upper Link#2 / Component_19054",
+    "ROOT / Component_19052 / Upper Link#2 / Component_19054",
+    "ROOT / Component_19052 / Upper Link#2 / Component_19822",
+    "ROOT / Component_19052 / Lower Link#2",
+    "ROOT / Component_19052 / Lower Link#2 / race#10",
+    "ROOT / Component_19052 / Lower Link#2 / race#13",
+    "ROOT / Component_19052 / Lower Link#2 / Component_26625",
+    "ROOT / Component_19052 / Lower Link#2 / Component_26948",
+    "ROOT / Component_19052 / counterweight#2",
+    "ROOT / Component_19052 / counterweight#2 / Component_21489",
+    "ROOT / Component_19052 / counterweight#2 / Component_21617",
+    "ROOT / Component_19052 / counterweight#2 / Component_21765",
+    "ROOT / Component_19052 / counterweight#2 / Component_21854",
+    "ROOT / Component_19052 / counterweight#2 / Component_22003",
+    "ROOT / Component_19052 / counterweight#2 / Component_22030",
+    "ROOT / Component_19052 / counterweight#2 / Component_22179",
+    "ROOT / Component_19052 / counterweight#2 / Component_22205",
+    "ROOT / Component_19052 / counterweight#2 / Component_22354",
+    "ROOT / Component_19052 / connector half#2 / Component_22723",
+    "ROOT / Component_19052 / connector half#2 / Component_22767",
+    "ROOT / Component_19052 / connector half#2 / Component_22767 / race#1",
+    "ROOT / Component_19052 / connector half#2 / Component_22767 / Component_22768",
+    "ROOT / Component_19052 / connector half#2 / Component_23118",
+    "ROOT / Component_23274 / arm#3 / Component_23276",
+    "ROOT / Component_23274 / arm#3 / Component_23276",
+    "ROOT / Component_23274 / arm#3 / Component_23276 / Component_24081",
+    "ROOT / Component_23274 / arm#3 / Component_23276 / Component_24119",
+    "ROOT / Component_23274 / arm#3 / Component_23499",
+    "ROOT / Component_23274 / arm#3 / Component_23525",
+    "ROOT / Component_23274 / arm#3 / Component_23551",
+    "ROOT / Component_23274 / arm#3 / Component_23699",
+    "ROOT / Component_23274 / arm#3 / Component_23902",
+    "ROOT / Component_23274 / arm / Component_24080",
+    "ROOT / Component_23274 / arm / Component_24080",
+    "ROOT / Component_23274 / arm / Component_24080 / Component_24081",
+    "ROOT / Component_23274 / arm / Component_24080 / Component_24119",
+    "ROOT / Component_23274 / arm / Component_24303",
+    "ROOT / Component_23274 / arm / Component_24329",
+    "ROOT / Component_23274 / arm / Component_24355",
+    "ROOT / Component_23274 / arm / Component_24503",
+    "ROOT / Component_23274 / arm / Component_24706",
+    "ROOT / Component_24902 / race",
+    "ROOT / Component_24902 / Component_25198",
+    "ROOT / Component_24902 / Component_25347",
+    "ROOT / Component_25549 / Upper Link / race#14",
+    "ROOT / Component_25549 / Upper Link / washer#6",
+    "ROOT / Component_25549 / Upper Link / washer#9",
+    "ROOT / Component_25549 / Upper Link / washer#3",
+    "ROOT / Component_25549 / Upper Link / Component_25551",
+    "ROOT / Component_25549 / Upper Link / Component_25551",
+    "ROOT / Component_25549 / Upper Link / Component_26319",
+    "ROOT / Component_25549 / Lower Link",
+    "ROOT / Component_25549 / Lower Link / race#8",
+    "ROOT / Component_25549 / Lower Link / race#11",
+    "ROOT / Component_25549 / Lower Link / Component_26625",
+    "ROOT / Component_25549 / Lower Link / Component_26948",
+    "ROOT / Component_25549 / counterweight",
+    "ROOT / Component_25549 / counterweight / Component_27986",
+    "ROOT / Component_25549 / counterweight / Component_28114",
+    "ROOT / Component_25549 / counterweight / Component_28262",
+    "ROOT / Component_25549 / counterweight / Component_28351",
+    "ROOT / Component_25549 / counterweight / Component_28500",
+    "ROOT / Component_25549 / counterweight / Component_28527",
+    "ROOT / Component_25549 / counterweight / Component_28676",
+    "ROOT / Component_25549 / counterweight / Component_28702",
+    "ROOT / Component_25549 / counterweight / Component_28851",
+    "ROOT / Component_25549 / connector half / Component_29220",
+    "ROOT / Component_25549 / connector half / Component_29264",
+    "ROOT / Component_25549 / connector half / Component_29264 / race#6",
+    "ROOT / Component_25549 / connector half / Component_29264 / Component_29265",
+    "ROOT / Component_25549 / connector half / Component_29615"
+  ]
+}

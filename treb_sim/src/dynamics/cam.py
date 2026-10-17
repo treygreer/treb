@@ -1,10 +1,10 @@
-from numpy import mat,linspace,hstack,vstack,isscalar,diff,pi
+from numpy import matrix as mat,linspace,hstack,vstack,isscalar,diff,pi
 
 from numpy import sqrt,cumsum,mod,sign,arctan2
 from .constraint import Constraint,Rod
 from scipy import optimize
 from scipy.interpolate import splprep, splev
-from scipy.interpolate.fitpack2 import UnivariateSpline
+from scipy.interpolate import UnivariateSpline
 from dynamics import convex_hull
 from dynamics import misc
 import pdb  # @UnusedImport

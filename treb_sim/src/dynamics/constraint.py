@@ -26,8 +26,8 @@ class Nail(Constraint):
         Constraint.__init__(self, sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
-        self.xframe = obj.obj2frame(np.mat(xobj).T)
-        self.xworld = np.mat(xworld).T
+        self.xframe = obj.obj2frame(np.matrix(xobj).T)
+        self.xworld = np.matrix(xworld).T
         self.dim=2
 
     def eval(self):
@@ -61,7 +61,7 @@ class Nail(Constraint):
 
             # draw force
             if (drawForces):
-                pen.setWidth(0.1)
+                pen.setWidthF(0.1)
                 force = [self.forces[0].A1[0]/DrawForceScale,
                          self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo[0],
@@ -75,10 +75,10 @@ class Pin(Constraint):
                  obj1, xobj1=None):
         Constraint.__init__(self, sim, name)
         self.frame0 = obj0.frame
-        self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
+        self.xframe0 = obj0.obj2frame(np.matrix(xobj0).T)
         if isinstance(obj1, Object):
             self.frame1 = obj1.frame
-            self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
+            self.xframe1 = obj1.obj2frame(np.matrix(xobj1).T)
         else:
             assert isinstance(obj1, Frame)
             assert xobj1 is None
@@ -122,7 +122,7 @@ class Pin(Constraint):
 
             # draw force
             if (drawForces):
-                pen.setWidth(0.1)
+                pen.setWidthF(0.1)
                 force = [self.forces[0].A1[0]/DrawForceScale,
                          self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo0[0],
@@ -136,8 +136,8 @@ class Rod(Constraint):
         Constraint.__init__(self, sim, name)
         self.frames = [obj0.frame, obj1.frame]
         self.frame0,self.frame1   = obj0.frame, obj1.frame
-        self.xframe0 = obj0.obj2frame(np.mat(xobj0).T)
-        self.xframe1 = obj1.obj2frame(np.mat(xobj1).T)
+        self.xframe0 = obj0.obj2frame(np.matrix(xobj0).T)
+        self.xframe1 = obj1.obj2frame(np.matrix(xobj1).T)
         self.length = length
         self.dim = 1
     def eval(self):
@@ -146,7 +146,7 @@ class Rod(Constraint):
         vvec =  (self.frame1.frame2worldv(self.xframe1) -
                  self.frame0.frame2worldv(self.xframe0))
         if self.length is None:
-            self.length = np.sqrt(np.asscalar(xvec.T * xvec))
+            self.length = np.sqrt((xvec.T * xvec).item())
         C    = xvec.T*xvec - self.length*self.length
         if length_(C) > 1e-3:
             print("rod error:  ")
@@ -183,7 +183,7 @@ class Rod(Constraint):
                           xo1[0], xo1[1], pen)
             # draw force
             if (drawForces):
-                pen.setWidth(0.1)
+                pen.setWidthF(0.1)
                 force = [self.forces[0].A1[0]/DrawForceScale,
                          self.forces[0].A1[1]/DrawForceScale]
                 scene.addLine(xo0[0],
@@ -202,8 +202,8 @@ class Shelf(Nail):
         Constraint.__init__(self, sim, name)
         self.frames = [obj.frame]
         self.frame = obj.frame
-        self.xframe = obj.obj2frame(np.mat(xobj).T)
-        self.xworld = np.mat([0, height]).T
+        self.xframe = obj.obj2frame(np.matrix(xobj).T)
+        self.xworld = np.matrix([0, height]).T
         self.dim=1
     def eval(self):
         # evaluate as though a Nail, then pick out second (y) row of results
@@ -232,11 +232,11 @@ class Angle(Constraint):
         self.theta = obj.frame.theta + theta
         self.dim=1
     def eval(self):
-        return ({'C':    np.mat([self.frame.theta - self.theta]),
-                 'Cdot': np.mat([self.frame.omega]),
+        return ({'C':    np.matrix([self.frame.theta - self.theta]),
+                 'Cdot': np.matrix([self.frame.omega]),
                  'blocks': [ {'frame' : self.frame,
-                              'j'   : np.mat([0, 0, 1]),
-                              'jdot': np.mat([0, 0, 0])} ]})
+                              'j'   : np.matrix([0, 0, 1]),
+                              'jdot': np.matrix([0, 0, 0])} ]})
     def draw(self, scene, drawForces):
         pass
 
