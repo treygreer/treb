@@ -10,7 +10,7 @@ publish `gh-pages` from `/`, with no custom domain on this repository.
 
 Current configuration: 2013 machine with the 2012 counterweight, 8 lb pumpkin,
 11 oz sling and 9 oz added hardware at the throwing-arm tip. The optimized
-rounded sling length is 9.54 ft, at a 30-degree launch elevation, predicting
+rounded sling length is 9 ft 6.5 in (9.54 ft in the model), at a 30-degree launch elevation, predicting
 approximately 2,177 ft.
 
 The viewer includes 2D/3D switching, touch camera controls, force and energy
